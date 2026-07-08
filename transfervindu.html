@@ -526,42 +526,69 @@
     <div class="vg-flash"></div>
   </div>
 
+<script src="tekster.js"></script>
 <script>
-  /* ====== INNSTILLINGER ====== */
-  const START_MINUTES = 10;
+  /* ============================================================
+     ALL REDIGERBAR TEKST LIGGER I tekster.js
+     (tweets, breaking, spillerkort, DONE DEAL, ventebilde,
+     vignett, ticker, QR, demomeldinger, nedtellingsminutter)
+     ============================================================ */
+  const START_MINUTES = TEKSTER.nedtellingMinutter;
   let   autostart     = false;
-
-  /* ====== TWEETS (nyhetsbåndet) ====== */
-  const TWEETS = [
-    {h:"@FabrizioRomano", v:true,  c:"#1d9bf0", src:"⭐⭐⭐⭐⭐", t:"🚨 HER ER DEN! Jonas → Eirin, here we go! ✅ Kontrakt signert til år 2096 (livsvarig). Medisinsk sjekk bestått. #11Juli"},
-    {h:"@OvergangsEksperten", v:false, c:"#e2002a", src:"ifølge svigermor", t:"Forstår at Eirin United har vunnet kampen om Jonas etter flere års forhandlinger. Klubbene er enige – ringen er personlig vilkår. 💍"},
-    {h:"@SkySportsNews", v:true, c:"#0a3aff", src:"⭐⭐⭐⭐", t:"OFFISIELT: Jonas forlater Ungkar FC på gratis overgang. Ingen tilbakekjøpsklausul i kontrakten. 🤵"},
-    {h:"@RyktebørsenNO", v:false, c:"#ff8a00", src:"⭐⭐", t:"Kilder: Jonas har bestått den medisinske. Eneste bekymring fra teamet – formen på dansegulvet etter kl. 22:00. 🕺"},
-    {h:"@ToastmasterTV", v:true, c:"#16a34a", src:"offisiell kanal", t:"Espen & Fredrik bekrefter pressekonferanse på Høymagasinet kl. 14:30. Bobler garantert til de frammøtte. 🥂"},
-    {h:"@DeadlineDayNO", v:false, c:"#7c3aed", src:"⭐⭐⭐", t:"BREAKING: Avsløringen skjer i Gamle Aker kirke kl. 13:00. Begge leire ventes til stede. Full enighet. 🔔"},
-    {h:"@LønnsLekkasjen", v:false, c:"#0891b2", src:"⭐", t:"Lønnsdetaljer: ubegrenset kjærlighet + 50 % av fjernkontrollen. Bonus utbetales ved oppvask. 😅"},
-    {h:"@FotballPåBryllup", v:true, c:"#db2777", src:"⭐⭐⭐⭐", t:"Eirin om signeringen: «Vi har fulgt ham lenge. Han passer perfekt inn i systemet vårt.» ❤️"},
-    {h:"@SupporterUnionFC", v:false, c:"#475569", src:"fanside", t:"Ungkar FC-fansen i sjokk: nøkkelspilleren borte før sesongstart. Klubben henter ingen erstatter. 😭"},
-    {h:"@TaktikkProffen", v:false, c:"#ca8a04", src:"⭐⭐", t:"Analyse: Jonas ventes i en mer defensiv rolle hjemme, men med full frihet til å angripe grillen i helgene. 🔥"},
-  ];
-
-  /* ====== BREAKING-overskrifter ====== */
-  const BREAKINGS = [
-    "Jonas til legesjekk – bestått! Klar for presentasjon i Gamle Aker kirke ✅",
-    "Eirin United bekrefter: personlige vilkår avtalt. Kun signaturen gjenstår ✍️",
-    "Toppkilde: Jonas har takket nei til alle andre tilbud – «hun er den eneste» 💘",
-    "Forloverne i hektisk møte – ryktes å forberede et innslag ingen glemmer 🎤",
-    "Dansegulvet meldes klart kl. 22:00. Eksperter advarer mot Jonas' moves 🕺",
-    "Ungkar FC senker flagget på halv stang. En æra er over 🏳️",
-    "Bryllupsreisen: destinasjon hemmeligholdt. Spekulasjonene går varme ✈️",
-  ];
-
-  /* ====== SPILLERKORT ====== */
+  const TWEETS    = TEKSTER.tweets;
+  const BREAKINGS = TEKSTER.breaking;
   const JONAS_CARD = {
-    ovr:"99", pos:"EKT", name:"JONAS", flag:"🇳🇴", crest:"💍",
-    stats:[ ["KJÆ","99"], ["LOJ","98"], ["GRI","95"], ["HUM","91"], ["DAN","72"], ["OPP","41"] ],
-    fee:"💰 Verdi: 1 livslangt JA + 2 katter"
+    ovr:TEKSTER.spillerkort.ovr, pos:TEKSTER.spillerkort.pos,
+    name:TEKSTER.spillerkort.navn, flag:TEKSTER.spillerkort.flagg,
+    crest:TEKSTER.spillerkort.emblem, stats:TEKSTER.spillerkort.stats,
+    fee:TEKSTER.spillerkort.verdi,
   };
+
+  /* Legg tekstene fra tekster.js inn i markupen */
+  (function(){
+    const q=s=>document.querySelector(s);
+    q(".headline .small").textContent = TEKSTER.overskriftLiten;
+    q(".headline .big").textContent   = TEKSTER.overskriftStor;
+    q(".clock-label").textContent     = TEKSTER.klokkeEtikett;
+    q(".breaking .lab").textContent   = TEKSTER.breakingEtikett;
+    document.title = TEKSTER.overskriftLiten+" – "+TEKSTER.overskriftStor;
+
+    const tt=q(".ticker-tag");
+    tt.textContent=""; const tx=document.createElement("span");
+    tx.className="x"; tx.textContent="𝕏";
+    tt.append(tx, " "+TEKSTER.tickerEtikett);
+
+    const ft=q("#feed-tag");
+    ft.textContent=""; const fd=document.createElement("span"); fd.className="dot";
+    const fx=document.createElement("span"); fx.className="x"; fx.textContent="𝕏";
+    ft.append(fd, " "+TEKSTER.feedEtikett+" ", fx);
+
+    q(".qrtxt b").textContent    = TEKSTER.qrTittel;
+    q(".qrtxt span").textContent = TEKSTER.qrUndertekst;
+
+    const dh=q("#done h1");
+    dh.textContent=TEKSTER.doneDeal.tittel1+" ";
+    const ds=document.createElement("span");
+    ds.textContent=TEKSTER.doneDeal.tittel2; dh.append(ds);
+    q("#done-sub").textContent   = TEKSTER.doneDeal.undertekst;
+
+    q(".sb-kicker").textContent  = TEKSTER.ventebilde.kicker;
+    q(".sb-title").textContent   = TEKSTER.ventebilde.tittel;
+    q(".sb-start").textContent   = TEKSTER.ventebilde.startknapp;
+
+    /* Vignett: ord 1 bygges bokstav for bokstav med egen animasjons-
+       forsinkelse pr. bokstav (erstatter nth-child-delayene i CSS-en,
+       så ordet kan være så langt eller kort du vil) */
+    const w1=q(".vg-words .w1"); w1.textContent="";
+    [...TEKSTER.vignett.ord1].forEach((ch,i)=>{
+      const el=document.createElement("i");
+      el.textContent = ch===" " ? " " : ch;
+      el.style.animationDelay=(3.95+i*0.055).toFixed(2)+"s";
+      w1.append(el);
+    });
+    q(".vg-words .w2").textContent = TEKSTER.vignett.ord2;
+    q(".vg-sub").textContent       = TEKSTER.vignett.undertekst;
+  })();
 
   /* ====== LIVE GJESTEFEED ======
      Samme backend som bryllupsbackdrop: gjestene sender via send.html (QR),
@@ -793,7 +820,7 @@
     track.style.setProperty("--ticker-dur", d+"s");
   }
   function render(){
-    clock.textContent = remaining===0 ? "FULL TID" : fmt(remaining);
+    clock.textContent = remaining===0 ? TEKSTER.klokkeFerdig : fmt(remaining);
     clock.classList.toggle("warn", remaining<=60 && remaining>0);
     clock.classList.toggle("done", remaining===0);
     scene.classList.toggle("shake", remaining<=10 && remaining>0 && !!timer);
@@ -880,14 +907,7 @@
   }
   /* Demomodus: ?demo=1 mater feeden med testmeldinger når sendingen er live */
   if(new URLSearchParams(location.search).get("demo")){
-    const demo=[
-      {type:"text", name:"Tante Randi", message:"Tidenes signering! Gratulerer, Eirin og Jonas! 🥂"},
-      {type:"emoji", message:"💍"},
-      {type:"text", name:"Fredrik", message:"Her var det full klaff mellom klubb og spiller. Skål!"},
-      {type:"text", name:"Kollegene til Jonas", message:"Endelig en overgang han ikke trengte betenkningstid på 😄"},
-      {type:"emoji", message:"❤️"},
-      {type:"text", name:"Mormor", message:"Lykke til på ferden, kjære dere. Dette blir fint!"},
-    ];
+    const demo=TEKSTER.demoMeldinger;
     let di=0;
     setInterval(()=>{ if(state==="live") feedQueue.push(demo[di++%demo.length]); },4000);
   }
