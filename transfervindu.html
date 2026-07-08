@@ -497,10 +497,6 @@
       <h1 class="sb-title">SENDINGEN STARTER SNART</h1>
       <div class="sb-clock" id="sb-clock">--:--:--</div>
       <button class="sb-start" id="sb-start">▶ START SENDINGEN</button>
-      <div class="sb-hints">
-        <span id="sb-lyd">🔇 Klikk hvor som helst for ventemusikk</span><br>
-        <kbd>Enter</kbd> start sendingen · <kbd>F</kbd> fullskjerm · <kbd>M</kbd> lyd · <kbd>H</kbd> hjelp (eget vindu)
-      </div>
     </div>
     <div class="sb-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
@@ -1051,7 +1047,8 @@ ${rad("H","Denne hjelpen")}
   function armAudio(){
     if(audioArmed) return; audioArmed=true;
     ac(); loopStart(.5,1.5);
-    document.getElementById("sb-lyd").textContent="🔊 Ventemusikk på";
+    var sbLyd=document.getElementById("sb-lyd");
+    if(sbLyd) sbLyd.textContent="🔊 Ventemusikk på";
   }
   function startBroadcast(){
     if(state!=="standby") return;
