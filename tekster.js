@@ -43,7 +43,7 @@ const TEKSTER = {
   spillerkort: {
     ovr: "99",                               // tallet øverst
     pos: "EKT",                              // "posisjon" under tallet
-    navn: "JONAS",
+    navn: "SJØEN",
     flagg: "🇳🇴",
     emblem: "💍",
     // Stats: [forkortelse, tall] – seks stykker ser best ut
