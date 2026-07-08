@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overgangsvindu – ÅPENT</title>
+<style>
+  /* ============================================================
+     REDIGER ENKELT HER
+     - START_MINUTES  : minutter klokka teller ned fra (i <script>)
+     - TWEETS         : nyhetsbåndet         (i <script>)
+     - BREAKINGS      : breaking-overskrifter (i <script>)
+     - JONAS_CARD     : spillerkortet         (i <script>)
+     ============================================================ */
+  :root{
+    --gul:#ffd000;
+    --oransje:#ff8a00;
+    --dyporansje:#e85d00;
+    --moerk:#1c1200;
+    --tekst:#1a1305;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; overflow:hidden; }
+  body{
+    font-family:"Arial Black","Helvetica Neue",Arial,sans-serif;
+    background:#000; color:var(--tekst);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- BAKGRUNN ---------- */
+  .scene{
+    position:fixed; inset:0; overflow:hidden;
+    background:linear-gradient(135deg, #fff3a0 0%, var(--gul) 22%, var(--oransje) 62%, var(--dyporansje) 100%);
+  }
+  .scene::before{
+    content:""; position:absolute; inset:-30%;
+    background:
+      radial-gradient(60% 60% at 20% 20%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(50% 50% at 85% 80%, rgba(232,93,0,.55), transparent 60%);
+    animation:drift 14s ease-in-out infinite alternate;
+    mix-blend-mode:soft-light;
+  }
+  @keyframes drift{
+    from{ transform:translate(-3%,-2%) scale(1.05); }
+    to  { transform:translate(4%,3%)  scale(1.15); }
+  }
+  /* animerte chevroner som glir */
+  .chevrons{
+    position:absolute; inset:-20%;
+    background-image:repeating-linear-gradient(-45deg,
+      rgba(255,255,255,.10) 0px, rgba(255,255,255,.10) 2px,
+      transparent 2px, transparent 80px);
+    animation:slide 6s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes slide{ to{ transform:translate(80px,80px); } }
+
+  /* film-grain + vignett */
+  .grain{
+    position:absolute; inset:0; pointer-events:none; z-index:8;
+    opacity:.07; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain .5s steps(2) infinite;
+  }
+  @keyframes grain{ 0%{transform:translate(0,0)} 50%{transform:translate(-6px,4px)} 100%{transform:translate(4px,-5px)} }
+  .vignette{
+    position:absolute; inset:0; pointer-events:none; z-index:7;
+    box-shadow:inset 0 0 22vw rgba(40,20,0,.45);
+    background:radial-gradient(120% 120% at 50% 45%, transparent 55%, rgba(30,15,0,.35) 100%);
+  }
+
+  /* ---------- TOPPLINJE ---------- */
+  .topbar{
+    position:absolute; top:0; left:0; right:0; display:flex;
+    align-items:center; justify-content:space-between;
+    padding:clamp(14px,2vw,28px) clamp(20px,3vw,48px); z-index:5;
+  }
+  .logo{ display:flex; align-items:center; gap:8px; }
+  .logo .sky{ color:#0a3aff; font-style:italic; font-size:clamp(20px,2.4vw,34px); letter-spacing:-.02em; text-shadow:0 1px 0 rgba(255,255,255,.4); }
+  .logo .sport{ background:#e2002a; color:#fff; font-style:italic; font-size:clamp(20px,2.4vw,34px); padding:0 .25em; border-radius:4px; letter-spacing:-.02em; }
+  .live{ display:flex; align-items:center; gap:10px; background:#c8102e; color:#fff; padding:.35em .8em; border-radius:6px; font-size:clamp(14px,1.5vw,20px); letter-spacing:.12em; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  .live .dot{ width:.7em; height:.7em; border-radius:50%; background:#fff; animation:blink 1.1s steps(1) infinite; }
+  .live .t{ font-family:"Helvetica Neue",Arial; font-weight:700; font-variant-numeric:tabular-nums; }
+  @keyframes blink{ 50%{ opacity:.15; } }
+
+  /* ---------- MIDTEN ---------- */
+  .center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:4; padding-bottom:8vh; }
+  .headline{ text-align:center; line-height:.92; text-shadow:0 4px 0 rgba(255,255,255,.25), 0 8px 24px rgba(0,0,0,.18); margin-bottom:clamp(10px,2vh,30px); }
+  .headline .small{ display:block; font-size:clamp(26px,4.4vw,64px); color:var(--moerk); }
+  .headline .big{ display:block; font-size:clamp(54px,10vw,150px); color:#16100a; letter-spacing:.02em; }
+
+  .clock-wrap{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .clock-label{ font-size:clamp(13px,1.4vw,20px); letter-spacing:.35em; color:rgba(30,20,0,.7); }
+  .clock{
+    font-variant-numeric:tabular-nums; font-size:clamp(80px,17vw,260px); line-height:1; color:#140d04;
+    background:rgba(255,255,255,.18); border:.12em solid rgba(20,12,0,.65); border-radius:.14em;
+    padding:.05em .22em .08em;
+    box-shadow:0 12px 40px rgba(0,0,0,.28), inset 0 0 40px rgba(255,255,255,.25);
+    text-shadow:0 3px 0 rgba(255,255,255,.3), 0 0 24px rgba(255,255,255,.35);
+    transition:color .3s, border-color .3s, background .3s;
+  }
+  .clock.warn{ color:#a80016; border-color:#a80016; text-shadow:0 0 28px rgba(255,40,40,.8); animation:pulse .9s ease-in-out infinite; }
+  .clock.done{ color:#a80016; border-color:#a80016; background:rgba(168,0,22,.12); }
+  @keyframes pulse{ 50%{ transform:scale(1.04); } }
+
+  /* skjelv siste sekunder */
+  .scene.shake{ animation:shake .12s linear infinite; }
+  @keyframes shake{ 0%{transform:translate(0,0)} 25%{transform:translate(-3px,2px)} 50%{transform:translate(3px,-2px)} 75%{transform:translate(-2px,-3px)} 100%{transform:translate(2px,3px)} }
+
+  /* ---------- TWEET-TICKER ---------- */
+  .ticker{ position:absolute; left:0; right:0; bottom:0; z-index:6; background:linear-gradient(180deg, rgba(10,7,0,0), rgba(10,7,0,.92) 35%); padding-top:30px; }
+  .ticker-bar{ display:flex; align-items:stretch; background:#0a0a0a; border-top:3px solid var(--gul); }
+  .ticker-tag{ flex:0 0 auto; display:flex; align-items:center; gap:10px; background:var(--gul); color:#111; font-size:clamp(14px,1.5vw,20px); letter-spacing:.12em; padding:0 clamp(14px,1.6vw,26px); white-space:nowrap; z-index:2; box-shadow:6px 0 14px rgba(0,0,0,.45); }
+  .ticker-tag .x{ font-style:italic; font-weight:900; background:#111; color:#fff; width:1.5em; height:1.5em; border-radius:5px; display:grid; place-items:center; }
+  .ticker-view{ overflow:hidden; flex:1 1 auto; }
+  .ticker-track{ display:inline-flex; align-items:center; white-space:nowrap; padding:14px 0; animation:scroll var(--ticker-dur,60s) linear infinite; will-change:transform; }
+  .ticker:hover .ticker-track{ animation-play-state:paused; }
+  @keyframes scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .tweet{ display:inline-flex; align-items:center; gap:12px; color:#f3f3f3; font-family:"Helvetica Neue",Arial,sans-serif; font-size:clamp(15px,1.5vw,21px); padding:0 clamp(22px,2.5vw,46px); border-right:1px solid rgba(255,255,255,.12); }
+  .tweet .av{ flex:0 0 auto; width:1.9em; height:1.9em; border-radius:50%; display:grid; place-items:center; font-weight:900; color:#fff; font-size:.8em; font-family:"Arial Black",sans-serif; }
+  .tweet .handle{ font-weight:800; color:#fff; }
+  .tweet .check{ color:#1d9bf0; margin-left:-6px; }
+  .tweet .src{ font-size:.78em; opacity:.65; margin-left:6px; }
+  .tweet .txt{ font-weight:500; opacity:.95; }
+
+  /* ---------- BREAKING-BANNER ---------- */
+  .breaking{
+    position:absolute; left:0; right:0; bottom:16vh; z-index:9;
+    display:flex; align-items:center; gap:0;
+    transform:translateY(calc(16vh + 120%)); transition:transform .5s cubic-bezier(.2,1.2,.3,1);
+    filter:drop-shadow(0 10px 24px rgba(0,0,0,.5));
+  }
+  .breaking.show{ transform:translateY(0); }
+  .breaking .lab{ background:#c8102e; color:#fff; font-size:clamp(16px,1.9vw,28px); letter-spacing:.08em; padding:.5em 1em; white-space:nowrap; animation:flashbg 1s steps(1) infinite; }
+  @keyframes flashbg{ 50%{ background:#8a0010; } }
+  .breaking .msg{ background:var(--gul); color:#111; font-size:clamp(16px,1.9vw,28px); padding:.5em 1.2em; flex:1 1 auto; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ---------- FIFA-SPILLERKORT (gull FUT-stil) ---------- */
+  .card-stage{ position:absolute; inset:0; z-index:15; display:grid; place-items:center; pointer-events:none; }
+  .card{
+    --g1:#fff7d2; --g2:#f3d978; --g3:#d8af3c; --g4:#a87c1f; --ink:#2a1d00;
+    width:min(72vw,380px); aspect-ratio:3/4.55; pointer-events:auto;
+    position:relative; overflow:hidden; border-radius:16px; color:var(--ink);
+    display:flex; flex-direction:column;
+    background:radial-gradient(135% 85% at 50% -8%, var(--g1) 0%, var(--g2) 27%, var(--g3) 58%, var(--g4) 100%);
+    box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.45), inset 0 0 60px rgba(255,255,255,.22);
+    transform:translateY(40px) scale(.6) rotateY(40deg); opacity:0;
+    transition:transform .6s cubic-bezier(.2,1.3,.3,1), opacity .5s;
+  }
+  .card.show{ transform:translateY(0) scale(1) rotateY(0); opacity:1; }
+  /* strålemønster bak spilleren */
+  .card::before{
+    content:""; position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.16;
+    background:repeating-conic-gradient(from 0deg at 50% 24%, rgba(255,255,255,.7) 0deg 1.6deg, transparent 1.6deg 8deg);
+    -webkit-mask-image:radial-gradient(58% 52% at 50% 24%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(58% 52% at 50% 24%, #000 0%, transparent 72%);
+  }
+  /* glansstripe */
+  .card::after{ content:""; position:absolute; top:-60%; left:-45%; width:55%; height:220%; z-index:5; background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent); transform:rotate(20deg); animation:shine 3.8s ease-in-out infinite; pointer-events:none; }
+  @keyframes shine{ 0%,100%{ left:-45%; } 55%{ left:120%; } }
+
+  .card .player{ flex:1 1 auto; min-height:0; width:100%; object-fit:contain; object-position:bottom center; z-index:2; filter:drop-shadow(0 8px 10px rgba(0,0,0,.4)); }
+
+  .card .info{ position:absolute; top:6.5%; left:9%; z-index:3; display:flex; flex-direction:column; align-items:center; line-height:1; text-shadow:0 1px 0 rgba(255,255,255,.5); }
+  .card .info b{ font-size:clamp(34px,4.7vw,60px); }
+  .card .info .pos{ font-size:clamp(13px,1.6vw,20px); letter-spacing:.06em; margin-top:.06em; }
+  .card .info .ln{ width:64%; height:2px; background:rgba(42,28,0,.45); margin:.4em 0; }
+  .card .info .flag,.card .info .crest{ font-size:clamp(17px,2vw,25px); line-height:1.3; }
+
+  .card .lower{ flex:0 0 auto; z-index:3; padding:1.5% 9% 6%; }
+  .card .name{ text-align:center; font-size:clamp(22px,3vw,38px); letter-spacing:.03em; padding-bottom:.12em; margin-bottom:.32em; border-bottom:3px solid rgba(42,28,0,.42); text-shadow:0 1px 0 rgba(255,255,255,.45); }
+  .card .stats{ display:grid; grid-template-columns:1fr 1fr; gap:.1em 1.4em; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:clamp(14px,1.7vw,21px); }
+  .card .stats div{ display:flex; gap:.55em; align-items:baseline; padding:.12em 0; }
+  .card .stats b{ font-family:"Arial Black"; min-width:1.5em; text-align:right; }
+  .card .stats span{ opacity:.78; letter-spacing:.04em; }
+  .card .fee{ margin-top:.6em; text-align:center; font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:clamp(11px,1.35vw,16px); background:rgba(42,28,0,.85); color:var(--g2); border-radius:8px; padding:.42em .6em; }
+
+  /* ---------- DONE DEAL-FINALE ---------- */
+  #confetti{ position:absolute; inset:0; z-index:30; pointer-events:none; display:none; }
+  .done-overlay{
+    position:absolute; inset:0; z-index:25; display:none; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; gap:2vh;
+    background:radial-gradient(circle at 50% 40%, rgba(0,80,30,.55), rgba(0,20,10,.9));
+  }
+  .done-overlay.show{ display:flex; animation:fadein .4s ease; }
+  @keyframes fadein{ from{ opacity:0; } to{ opacity:1; } }
+  .done-overlay .tick{ font-size:clamp(80px,16vw,200px); animation:pop .6s cubic-bezier(.2,1.5,.3,1); }
+  @keyframes pop{ 0%{ transform:scale(0) rotate(-30deg); } 100%{ transform:scale(1) rotate(0); } }
+  .done-overlay h1{ color:#fff; font-size:clamp(40px,8vw,120px); line-height:.95; text-shadow:0 6px 30px rgba(0,0,0,.6); }
+  .done-overlay h1 span{ color:#7CFC9A; }
+  .done-overlay p{ color:#ffe; font-family:"Helvetica Neue",Arial; font-weight:700; font-size:clamp(16px,2.4vw,32px); opacity:.95; }
+  .done-overlay .hint{ font-size:clamp(12px,1.4vw,16px); opacity:.6; margin-top:2vh; }
+
+  /* ---------- HJELP ---------- */
+  .help{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(10,7,0,.88); color:#fff; font-family:"Helvetica Neue",Arial,sans-serif; padding:26px 34px; border-radius:14px; z-index:40; text-align:center; line-height:1.9; max-width:560px; box-shadow:0 20px 60px rgba(0,0,0,.5); transition:opacity .4s; }
+  .help h2{ font-size:22px; margin-bottom:12px; }
+  .help kbd{ background:#fff; color:#111; border-radius:5px; padding:1px 8px; font-family:monospace; font-weight:700; margin:0 2px; display:inline-block; }
+  .help small{ display:block; margin-top:14px; opacity:.7; font-size:13px; }
+  .help.hidden{ opacity:0; pointer-events:none; }
+
+  /* lyd-indikator */
+  .mute{ position:absolute; bottom:calc(16vh + 60px); right:24px; z-index:12; background:rgba(10,7,0,.7); color:#fff; font-family:"Helvetica Neue",Arial; font-size:13px; padding:6px 12px; border-radius:20px; opacity:.5; transition:opacity .3s; }
+
+  /* ---------- LIVE GJESTEFEED (samme backend som bryllupsbackdrop) ---------- */
+  .feed{ position:absolute; top:12vh; right:20px; width:clamp(200px,18vw,280px); z-index:12; display:flex; flex-direction:column; gap:8px; }
+  .feed.hidden{ display:none; }
+  .feed-tag{ align-self:flex-end; display:flex; align-items:center; gap:8px; background:#0a0a0a; color:#fff; font-size:clamp(10px,1vw,13px); letter-spacing:.14em; padding:.45em .85em; border-radius:7px; box-shadow:0 6px 18px rgba(0,0,0,.3); }
+  .feed-tag .x{ font-style:italic; font-weight:900; background:#fff; color:#111; width:1.4em; height:1.4em; border-radius:4px; display:grid; place-items:center; }
+  .feed-tag .dot{ width:.6em; height:.6em; border-radius:50%; background:#2bd94e; animation:blink 1.4s steps(1) infinite; }
+  .feed-tag.feil .dot{ background:#ff9f43; animation:none; }
+  .feed-cards{ display:flex; flex-direction:column; gap:8px; }
+  .gtweet{ background:#fff; color:#0f1419; border-radius:12px; padding:9px 11px; font-family:"Helvetica Neue",Arial,sans-serif; box-shadow:0 8px 24px rgba(0,0,0,.25); overflow:hidden; position:relative; animation:gtin .55s cubic-bezier(.2,1.1,.3,1); }
+  @keyframes gtin{
+    0%{ opacity:0; transform:translateX(115%); max-height:0; padding-top:0; padding-bottom:0; margin-bottom:-8px; }
+    60%{ opacity:1; transform:translateX(-2%); }
+    100%{ opacity:1; transform:translateX(0); max-height:240px; padding-top:9px; padding-bottom:9px; margin-bottom:0; }
+  }
+  .gtweet .gh{ display:flex; align-items:flex-start; gap:7px; margin-bottom:4px; }
+  .gtweet .gav{ width:30px; height:30px; border-radius:50%; color:#fff; display:grid; place-items:center; font-family:"Arial Black",sans-serif; font-size:12px; flex:0 0 auto; }
+  .gtweet .gnavn{ font-weight:800; font-size:13px; line-height:1.2; display:inline-flex; align-items:center; gap:4px; }
+  .gtweet .gnavn .check{ color:#1d9bf0; font-size:12px; }
+  .gtweet .ghandle{ color:#536471; font-weight:500; font-size:11px; }
+  .gtweet .gx{ margin-left:auto; font-weight:900; font-style:italic; font-size:15px; }
+  .gtweet .gtxt{ font-size:clamp(12px,1.05vw,14px); line-height:1.35; font-weight:500; overflow-wrap:break-word; }
+  .gtweet.emoji .gtxt{ font-size:32px; text-align:center; padding:3px 0 1px; }
+
+  /* ---------- QR-BUG: send hilsen (peker til bryllupsbackdrop/send.html) ---------- */
+  .qrbug{ position:absolute; left:24px; bottom:calc(16vh + 74px); z-index:12; display:flex; flex-direction:column; align-items:center; gap:6px; width:126px; background:#fff; border-radius:12px; padding:8px 8px 9px; box-shadow:0 10px 30px rgba(0,0,0,.3); text-align:center; }
+  .qrbug.hidden{ display:none; }
+  .qrbug svg{ width:100%; height:auto; display:block; }
+  .qrtxt{ font-family:"Helvetica Neue",Arial,sans-serif; color:#0f1419; line-height:1.3; }
+  .qrtxt b{ display:block; font-size:11px; font-weight:800; letter-spacing:.03em; }
+  .qrtxt span{ font-size:10px; color:#536471; font-weight:600; }
+
+  /* ---------- VENTEBILDE (før sending) ---------- */
+  .standby{
+    position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(120% 100% at 50% 18%, #14285f 0%, #0a1637 55%, #04091c 100%);
+    color:#fff; transition:opacity .6s; cursor:pointer;
+  }
+  .standby::before{ /* svakt rutenett */
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(85% 75% at 50% 40%, #000 30%, transparent 100%);
+            mask-image:radial-gradient(85% 75% at 50% 40%, #000 30%, transparent 100%);
+  }
+  .standby::after{ /* scanlines */
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.35;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 2px, transparent 2px 5px);
+  }
+  .standby.gone{ opacity:0; pointer-events:none; }
+  .sb-inner{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:2.4vh; text-align:center; padding:0 6vw 11vh; max-width:100vw; }
+  .sb-kicker,.sb-title{ max-width:88vw; }
+  .sb-logo .sky,.sb-logo .sport{ font-size:clamp(36px,5.4vw,68px); }
+  .sb-kicker{ font-size:clamp(12px,1.6vw,20px); letter-spacing:.32em; color:var(--gul); }
+  .sb-title{ font-size:clamp(28px,5.4vw,74px); line-height:1.06; text-shadow:0 6px 24px rgba(0,0,0,.5); animation:sbpulse 2.6s ease-in-out infinite; }
+  @keyframes sbpulse{ 50%{ opacity:.55; } }
+  .sb-clock{ font-variant-numeric:tabular-nums; font-size:clamp(24px,3.2vw,46px); background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); border-radius:10px; padding:.2em .6em; letter-spacing:.06em; }
+  .sb-start{
+    font-family:inherit; font-size:clamp(16px,2vw,26px); letter-spacing:.08em; cursor:pointer;
+    background:#c8102e; color:#fff; border:0; border-radius:10px; padding:.7em 1.6em;
+    box-shadow:0 10px 30px rgba(200,16,46,.45); transition:transform .15s, box-shadow .15s;
+  }
+  .sb-start:hover{ transform:translateY(-2px) scale(1.03); box-shadow:0 14px 36px rgba(200,16,46,.6); }
+  .sb-hints{ font-family:"Helvetica Neue",Arial,sans-serif; font-weight:600; font-size:clamp(11px,1.3vw,15px); opacity:.65; line-height:1.9; }
+  .sb-hints kbd{ background:#fff; color:#111; border-radius:4px; padding:0 6px; font-family:monospace; }
+  .sb-bars{ position:absolute; left:0; right:0; bottom:0; height:9vh; display:flex; z-index:1; opacity:.8; }
+  .sb-bars i{ flex:1; }
+  .sb-bars i:nth-child(1){ background:#c0c0c0; } .sb-bars i:nth-child(2){ background:#c0c000; }
+  .sb-bars i:nth-child(3){ background:#00c0c0; } .sb-bars i:nth-child(4){ background:#00c000; }
+  .sb-bars i:nth-child(5){ background:#c000c0; } .sb-bars i:nth-child(6){ background:#c00000; }
+  .sb-bars i:nth-child(7){ background:#0000c0; }
+
+  /* ---------- VIGNETT (sendestart-animasjon, ~9.5 s) ----------
+     Fase A 0–2.4s  : nedtelling 3-2-1 i kontrollrom
+     Fase B 2.45–3.6: tenning (braam, fartslinjer, streif, ringer, logo m/glitch)
+     Fase C 3.3–5.3 : panel-wipe, DEADLINE bokstav for bokstav, DAY-stempel
+     Fase D 5.3–7.2 : undertekst + bygg (riser, trommevirvel, sakte zoom)
+     Fase E 7.2–9.2 : DIREKTE-slam, sjokkring, blits, fade til studio */
+  .vignette{ position:fixed; inset:0; z-index:70; background:#000; display:none; overflow:hidden; transition:opacity .6s; }
+  .vignette.play{ display:block; }
+  .vignette.gone{ opacity:0; pointer-events:none; }
+
+  /* fase A: nedtelling */
+  .vg-grid{ position:absolute; inset:0; opacity:.55; pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size:46px 46px; }
+  .vignette.play .vg-grid{ animation:vggrid .35s linear 2.45s forwards; }
+  @keyframes vggrid{ to{ opacity:0; } }
+  .vg-count{ position:absolute; inset:0; display:grid; place-items:center; }
+  .vg-count b,.vg-count i{ grid-area:1/1; display:block; }
+  .vg-count b{ width:38vmin; height:38vmin; border:3px dashed rgba(255,255,255,.45); border-radius:50%; opacity:0; position:relative; }
+  .vg-count b::after{ content:""; position:absolute; inset:-5vmin; border:1px solid rgba(255,255,255,.2); border-radius:50%; }
+  .vignette.play .vg-count b{ animation:vgring360 .8s linear 3, vgcountfade 2.6s linear forwards; }
+  @keyframes vgring360{ from{ transform:rotate(0); } to{ transform:rotate(360deg); } }
+  @keyframes vgcountfade{ 0%{ opacity:0; } 6%{ opacity:1; } 88%{ opacity:1; } 100%{ opacity:0; } }
+  .vg-count i{ font-size:clamp(90px,20vmin,220px); font-style:normal; color:#fff; opacity:0; text-shadow:0 0 40px rgba(255,255,255,.4); }
+  .vignette.play .vg-count i.c3{ animation:vgnum .8s ease-out 0s forwards; }
+  .vignette.play .vg-count i.c2{ animation:vgnum .8s ease-out .8s forwards; }
+  .vignette.play .vg-count i.c1{ animation:vgnum .8s ease-out 1.6s forwards; color:var(--gul); }
+  @keyframes vgnum{ 0%{ opacity:0; transform:scale(1.8); } 18%{ opacity:1; } 70%{ opacity:1; transform:scale(1); } 100%{ opacity:0; transform:scale(.75); } }
+
+  /* fase B: tenning */
+  .vg-speed{ position:absolute; inset:-30%; opacity:0; pointer-events:none;
+    background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.55) 0deg .7deg, transparent .7deg 6deg);
+    -webkit-mask-image:radial-gradient(circle at 50% 50%, transparent 16%, #000 58%);
+            mask-image:radial-gradient(circle at 50% 50%, transparent 16%, #000 58%); }
+  .vignette.play .vg-speed{ animation:vgspeed 1.25s ease-out 2.45s forwards; }
+  @keyframes vgspeed{ 0%{ opacity:0; transform:scale(.7) rotate(0deg); } 12%{ opacity:.85; } 100%{ opacity:0; transform:scale(1.9) rotate(28deg); } }
+  .vg-streak{ position:absolute; top:0; bottom:0; left:-30%; width:16%; opacity:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent); }
+  .vg-streak.s1{ transform:skewX(-18deg); }
+  .vg-streak.s2{ transform:skewX(10deg); width:9%; }
+  .vg-streak.s3{ transform:skewX(-30deg); width:12%; }
+  .vignette.play .vg-streak.s1{ animation:vgstreak .7s ease-in 2.5s forwards; }
+  .vignette.play .vg-streak.s2{ animation:vgstreak .7s ease-in 2.68s forwards; }
+  .vignette.play .vg-streak.s3{ animation:vgstreak .7s ease-in 2.86s forwards; }
+  @keyframes vgstreak{ 0%{ left:-30%; opacity:0; } 15%{ opacity:1; } 100%{ left:120%; opacity:0; } }
+  .vg-rings{ position:absolute; inset:0; display:grid; place-items:center; }
+  .vg-rings i{ position:absolute; width:26vmin; height:26vmin; border:3px solid var(--gul); border-radius:50%; opacity:0; }
+  .vignette.play .vg-rings i{ animation:vgringx 1.4s cubic-bezier(.2,.7,.3,1) forwards; }
+  .vignette.play .vg-rings i:nth-child(1){ animation-delay:2.5s; }
+  .vignette.play .vg-rings i:nth-child(2){ animation-delay:2.7s; border-color:#fff; }
+  .vignette.play .vg-rings i:nth-child(3){ animation-delay:2.9s; border-color:var(--oransje); }
+  @keyframes vgringx{ 0%{ transform:scale(.2); opacity:0; } 20%{ opacity:.9; } 100%{ transform:scale(4.6); opacity:0; } }
+  .vg-logo{ position:absolute; inset:0; justify-content:center; opacity:0; }
+  .vg-logo .sky,.vg-logo .sport{ font-size:clamp(44px,8vw,110px); }
+  .vignette.play .vg-logo{ animation:vglogo 1.05s linear 2.6s forwards; }
+  @keyframes vglogo{
+    0%{ opacity:0; transform:scale(.3); }
+    10%{ opacity:1; transform:scale(1.07); }
+    18%{ transform:scale(1); }
+    30%{ transform:translate(-9px,3px) scale(1); clip-path:inset(8% 0 34% 0); }
+    34%{ transform:translate(7px,-4px) scale(1); clip-path:inset(48% 0 8% 0); }
+    38%{ transform:translate(0,0) scale(1); clip-path:inset(0 0 0 0); }
+    48%{ transform:translate(5px,2px) scale(1); clip-path:inset(20% 0 20% 0); }
+    52%{ transform:translate(0,0) scale(1); clip-path:inset(0 0 0 0); }
+    82%{ opacity:1; transform:scale(1.02); }
+    100%{ opacity:0; transform:scale(1.5); }
+  }
+
+  /* fase C: avsløring */
+  .vg-core{ position:absolute; inset:0; }
+  .vignette.play .vg-core{ animation:vgzoom 4.6s ease-in-out 4.6s forwards; }
+  @keyframes vgzoom{ to{ transform:scale(1.055); } }
+  .vg-bg{ position:absolute; inset:0; opacity:0;
+    background:linear-gradient(135deg, #fff3a0 0%, var(--gul) 22%, var(--oransje) 62%, var(--dyporansje) 100%); }
+  .vg-bg::after{ content:""; position:absolute; inset:-20%;
+    background-image:repeating-linear-gradient(-45deg, rgba(255,255,255,.12) 0 2px, transparent 2px 70px);
+    animation:slide 5s linear infinite; }
+  .vignette.play .vg-bg{ animation:vgbgin .35s linear 3.5s forwards; }
+  @keyframes vgbgin{ to{ opacity:1; } }
+  .vg-panels{ position:absolute; inset:0; pointer-events:none; }
+  .vg-panels i{ position:absolute; top:-12%; bottom:-12%; width:46%; transform:translateX(-300%) skewX(-14deg); }
+  .vg-panels i:nth-child(1){ left:-4%; background:var(--gul); }
+  .vg-panels i:nth-child(2){ left:31%; background:var(--oransje); }
+  .vg-panels i:nth-child(3){ left:66%; background:var(--dyporansje); }
+  .vignette.play .vg-panels i:nth-child(1){ animation:vgpanel .6s cubic-bezier(.35,.6,.25,1) 3.3s forwards; }
+  .vignette.play .vg-panels i:nth-child(2){ animation:vgpanel .6s cubic-bezier(.35,.6,.25,1) 3.44s forwards; }
+  .vignette.play .vg-panels i:nth-child(3){ animation:vgpanel .6s cubic-bezier(.35,.6,.25,1) 3.58s forwards; }
+  @keyframes vgpanel{ 0%{ transform:translateX(-300%) skewX(-14deg); } 100%{ transform:translateX(300%) skewX(-14deg); } }
+  .vg-words{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-bottom:6vh; perspective:800px; }
+  .vg-words .w1{ font-size:clamp(40px,9vw,120px); color:#16100a; letter-spacing:.04em; text-shadow:0 4px 0 rgba(255,255,255,.25), 0 10px 30px rgba(0,0,0,.25); }
+  .vg-words .w1 i{ display:inline-block; font-style:normal; opacity:0; transform-origin:50% 100%; }
+  .vignette.play .w1 i{ animation:vglet .42s cubic-bezier(.2,1.2,.3,1) forwards; }
+  .vignette.play .w1 i:nth-child(1){ animation-delay:3.95s; }
+  .vignette.play .w1 i:nth-child(2){ animation-delay:4.01s; }
+  .vignette.play .w1 i:nth-child(3){ animation-delay:4.06s; }
+  .vignette.play .w1 i:nth-child(4){ animation-delay:4.12s; }
+  .vignette.play .w1 i:nth-child(5){ animation-delay:4.17s; }
+  .vignette.play .w1 i:nth-child(6){ animation-delay:4.23s; }
+  .vignette.play .w1 i:nth-child(7){ animation-delay:4.28s; }
+  .vignette.play .w1 i:nth-child(8){ animation-delay:4.34s; }
+  @keyframes vglet{ 0%{ opacity:0; transform:rotateX(100deg) translateY(-.2em); } 100%{ opacity:1; transform:rotateX(0) translateY(0); } }
+  .vg-words .w2{ font-size:clamp(70px,16vw,220px); line-height:.9; color:#16100a; opacity:0; text-shadow:0 5px 0 rgba(255,255,255,.3), 0 14px 40px rgba(0,0,0,.3); }
+  .vignette.play .w2{ animation:vgw2 .5s cubic-bezier(.25,1.5,.35,1) 4.5s forwards; }
+  @keyframes vgw2{ 0%{ opacity:0; transform:scale(3.6); } 55%{ opacity:1; transform:scale(.93); } 100%{ opacity:1; transform:scale(1); } }
+  .vignette.play .vg-words{ animation:vgshake .35s linear 4.6s, vgshake .45s linear 7.25s; }
+  @keyframes vgshake{ 0%,100%{ transform:translate(0,0); } 25%{ transform:translate(-9px,6px); } 50%{ transform:translate(8px,-6px); } 75%{ transform:translate(-6px,-4px); } }
+
+  /* fase D: bygg */
+  .vg-sub{ position:absolute; left:0; right:0; bottom:24vh; text-align:center; font-size:clamp(15px,2.2vw,30px); letter-spacing:.28em; color:#2a1c00; opacity:0; }
+  .vignette.play .vg-sub{ animation:vgsub .6s ease 5.3s forwards; }
+  @keyframes vgsub{ 0%{ opacity:0; transform:translateY(24px); } 100%{ opacity:1; transform:translateY(0); } }
+
+  /* fase E: på lufta */
+  .vg-shock{ position:absolute; left:50%; top:50%; width:22vmin; height:22vmin; margin:-11vmin 0 0 -11vmin; border:4px solid rgba(255,255,255,.85); border-radius:50%; opacity:0; pointer-events:none; }
+  .vg-shock.k2{ top:13vh; }
+  .vignette.play .vg-shock.k1{ animation:vgshock .75s cubic-bezier(.1,.7,.3,1) 4.5s forwards; }
+  .vignette.play .vg-shock.k2{ animation:vgshock .85s cubic-bezier(.1,.7,.3,1) 7.2s forwards; }
+  @keyframes vgshock{ 0%{ opacity:.9; transform:scale(.15); } 100%{ opacity:0; transform:scale(7); } }
+  .vg-direkte{ position:absolute; top:7vh; left:50%; transform:translateX(-50%) translateY(-40vh) scale(1.4); background:#c8102e; color:#fff; font-size:clamp(20px,3vw,42px); letter-spacing:.14em; padding:.35em .9em; border-radius:8px; box-shadow:0 10px 34px rgba(0,0,0,.4); }
+  .vignette.play .vg-direkte{ animation:vgdir .5s cubic-bezier(.3,1.4,.35,1) 7.2s forwards, flashbg 1s steps(1) 7.75s infinite; }
+  @keyframes vgdir{ 0%{ transform:translateX(-50%) translateY(-40vh) scale(1.5) rotate(-5deg); } 65%{ transform:translateX(-50%) translateY(1.5vh) scale(1.04) rotate(1.5deg); } 100%{ transform:translateX(-50%) translateY(0) scale(1); } }
+  .vg-flash{ position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+  .vignette.play .vg-flash{ animation:vgfl .3s ease 2.45s, vgfl .35s ease 4.5s, vgflbig .7s ease 7.2s; }
+  @keyframes vgfl{ 0%{ opacity:.5; } 100%{ opacity:0; } }
+  @keyframes vgflbig{ 0%{ opacity:.97; } 100%{ opacity:0; } }
+</style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <div class="chevrons"></div>
+
+    <div class="topbar">
+      <div class="logo"><span class="sky">sky</span><span class="sport">sports</span></div>
+      <div class="live"><span class="dot"></span> LIVE <span class="t" id="liveclock"></span></div>
+    </div>
+
+    <div class="center">
+      <div class="headline">
+        <span class="small">Overgangsvindu</span>
+        <span class="big">ÅPENT</span>
+      </div>
+      <div class="clock-wrap">
+        <div class="clock-label">DEADLINE DAY</div>
+        <div class="clock" id="clock">10:00</div>
+      </div>
+    </div>
+
+    <!-- BREAKING -->
+    <div class="breaking" id="breaking">
+      <div class="lab">⚡ BREAKING</div>
+      <div class="msg" id="breaking-msg"></div>
+    </div>
+
+    <!-- SPILLERKORT -->
+    <div class="card-stage">
+      <div class="card" id="card">
+        <div class="info">
+          <b id="c-ovr">99</b>
+          <span class="pos" id="c-pos">EKT</span>
+          <i class="ln"></i>
+          <span class="flag" id="c-flag">🇳🇴</span>
+          <span class="crest" id="c-crest">💍</span>
+        </div>
+        <img class="player" id="c-img" src="jonas.png" alt="Jonas">
+        <div class="lower">
+          <div class="name" id="c-name">JONAS</div>
+          <div class="stats" id="c-stats"></div>
+          <div class="fee" id="c-fee"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKER -->
+    <div class="ticker">
+      <div class="ticker-bar">
+        <div class="ticker-tag"><span class="x">𝕏</span> OVERGANGSNYTT</div>
+        <div class="ticker-view"><div class="ticker-track" id="track"></div></div>
+      </div>
+    </div>
+
+    <div class="mute" id="mute">🔊 Lyd på (M)</div>
+
+    <!-- LIVE GJESTEFEED -->
+    <div class="feed" id="feed">
+      <div class="feed-tag" id="feed-tag"><span class="dot"></span> SISTE FRA SALEN <span class="x">𝕏</span></div>
+      <div class="feed-cards" id="feed-cards"></div>
+    </div>
+
+    <!-- QR: send hilsen (statisk generert, peker til bryllupsbackdrop/send.html) -->
+    <div class="qrbug" id="qrbug">
+      <svg viewBox="0 0 41 41" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path stroke="#0f1419" d="M4 4.5h7m4 0h3m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m6 0h4m3 0h2m2 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h2m2 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m2 0h4m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h4m1 0h1m1 0h2m9 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m-24 1h1m1 0h5m2 0h2m2 0h3m1 0h1m1 0h1m2 0h3m1 0h5m-27 1h1m3 0h1m1 0h2m2 0h1m2 0h4m2 0h1m2 0h2m1 0h2m1 0h1m-33 1h3m1 0h3m1 0h1m2 0h1m3 0h2m3 0h1m1 0h1m5 0h1m1 0h2m-31 1h1m1 0h2m4 0h1m2 0h1m1 0h1m1 0h1m2 0h4m2 0h1m2 0h3m-31 1h4m1 0h3m1 0h1m2 0h1m4 0h1m4 0h1m1 0h2m1 0h3m1 0h2m-33 1h2m1 0h1m4 0h1m2 0h2m1 0h7m1 0h2m2 0h1m2 0h1m1 0h2m-33 1h1m5 0h1m1 0h1m1 0h2m6 0h1m5 0h5m1 0h2m-30 1h2m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h4m1 0h5m1 0h2m-29 1h1m1 0h5m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h3m2 0h1m-31 1h2m5 0h3m4 0h2m1 0h3m1 0h1m2 0h2m1 0h2m1 0h1m-33 1h4m2 0h4m5 0h2m7 0h1m2 0h2m1 0h2m-32 1h1m2 0h1m1 0h1m3 0h1m2 0h1m1 0h2m2 0h5m1 0h8m-31 1h1m1 0h2m1 0h1m3 0h1m2 0h1m2 0h1m1 0h2m2 0h1m2 0h1m1 0h3m2 0h1m-33 1h6m1 0h4m1 0h1m1 0h2m2 0h2m3 0h1m2 0h1m2 0h2m1 0h1m-33 1h1m1 0h5m2 0h1m1 0h1m1 0h1m1 0h2m5 0h1m1 0h2m2 0h4m-32 1h1m6 0h2m1 0h1m1 0h1m2 0h1m4 0h3m2 0h1m1 0h1m1 0h4m-33 1h1m1 0h5m3 0h1m2 0h3m1 0h1m4 0h1m1 0h6m1 0h1m-24 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h4m3 0h1m1 0h3m-33 1h7m3 0h4m1 0h1m2 0h1m1 0h5m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h4m2 0h1m1 0h2m1 0h4m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h1m3 0h2m2 0h1m1 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m2 0h6m1 0h4m1 0h1m1 0h1m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h1m2 0h2m5 0h4m2 0h1m-31 1h1m5 0h1m3 0h1m1 0h2m2 0h1m1 0h4m4 0h1m1 0h3m-31 1h7m1 0h7m2 0h3m2 0h6m1 0h1m1 0h1"/></svg>
+      <div class="qrtxt"><b>SEND HILSEN TIL PARET</b><span>skann med mobilen 💌</span></div>
+    </div>
+
+    <!-- DONE DEAL -->
+    <canvas id="confetti"></canvas>
+    <div class="done-overlay" id="done">
+      <div class="tick">✅</div>
+      <h1>DONE <span>DEAL!</span></h1>
+      <p id="done-sub">Jonas har signert for Eirin United 💍</p>
+      <div class="hint">Trykk <b>Esc</b> for å lukke</div>
+    </div>
+
+    <!-- HJELP -->
+    <div class="help hidden" id="help">
+      <h2>🎙️ Overgangsvindu – studio</h2>
+      <div>
+        <kbd>Mellomrom</kbd> start/pause · <kbd>R</kbd> nullstill · <kbd>↑</kbd>/<kbd>↓</kbd> ±1 min<br>
+        <kbd>B</kbd> breaking · <kbd>C</kbd> spillerkort · <kbd>D</kbd> DONE DEAL<br>
+        <kbd>T</kbd> gjestefeed · <kbd>M</kbd> lyd · <kbd>F</kbd> fullskjerm
+      </div>
+      <small>Reservevisning (popup ble blokkert). Trykk <kbd>H</kbd> for å skjule/vise.</small>
+    </div>
+  </div>
+
+  <!-- VENTEBILDE -->
+  <div class="standby" id="standby">
+    <div class="sb-inner">
+      <div class="logo sb-logo"><span class="sky">sky</span><span class="sport">sports</span></div>
+      <div class="sb-kicker">DEADLINE DAY · 11. JULI 2026</div>
+      <h1 class="sb-title">SENDINGEN STARTER SNART</h1>
+      <div class="sb-clock" id="sb-clock">--:--:--</div>
+      <button class="sb-start" id="sb-start">▶ START SENDINGEN</button>
+      <div class="sb-hints">
+        <span id="sb-lyd">🔇 Klikk hvor som helst for ventemusikk</span><br>
+        <kbd>Enter</kbd> start sendingen · <kbd>F</kbd> fullskjerm · <kbd>M</kbd> lyd · <kbd>H</kbd> hjelp (eget vindu)
+      </div>
+    </div>
+    <div class="sb-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <!-- VIGNETT -->
+  <div class="vignette" id="vignette">
+    <div class="vg-grid"></div>
+    <div class="vg-count"><b></b><i class="c3">3</i><i class="c2">2</i><i class="c1">1</i></div>
+    <div class="vg-speed"></div>
+    <div class="vg-streak s1"></div>
+    <div class="vg-streak s2"></div>
+    <div class="vg-streak s3"></div>
+    <div class="vg-rings"><i></i><i></i><i></i></div>
+    <div class="logo vg-logo"><span class="sky">sky</span><span class="sport">sports</span></div>
+    <div class="vg-core">
+      <div class="vg-bg"></div>
+      <div class="vg-words">
+        <span class="w1"><i>D</i><i>E</i><i>A</i><i>D</i><i>L</i><i>I</i><i>N</i><i>E</i></span>
+        <span class="w2">DAY</span>
+      </div>
+      <div class="vg-sub">JONAS &amp; EIRIN · 11. JULI 2026</div>
+    </div>
+    <div class="vg-panels"><i></i><i></i><i></i></div>
+    <div class="vg-shock k1"></div>
+    <div class="vg-shock k2"></div>
+    <div class="vg-direkte">● DIREKTE</div>
+    <div class="vg-flash"></div>
+  </div>
+
+<script>
+  /* ====== INNSTILLINGER ====== */
+  const START_MINUTES = 10;
+  let   autostart     = false;
+
+  /* ====== TWEETS (nyhetsbåndet) ====== */
+  const TWEETS = [
+    {h:"@FabrizioRomano", v:true,  c:"#1d9bf0", src:"⭐⭐⭐⭐⭐", t:"🚨 HER ER DEN! Jonas → Eirin, here we go! ✅ Kontrakt signert til år 2096 (livsvarig). Medisinsk sjekk bestått. #11Juli"},
+    {h:"@OvergangsEksperten", v:false, c:"#e2002a", src:"ifølge svigermor", t:"Forstår at Eirin United har vunnet kampen om Jonas etter flere års forhandlinger. Klubbene er enige – ringen er personlig vilkår. 💍"},
+    {h:"@SkySportsNews", v:true, c:"#0a3aff", src:"⭐⭐⭐⭐", t:"OFFISIELT: Jonas forlater Ungkar FC på gratis overgang. Ingen tilbakekjøpsklausul i kontrakten. 🤵"},
+    {h:"@RyktebørsenNO", v:false, c:"#ff8a00", src:"⭐⭐", t:"Kilder: Jonas har bestått den medisinske. Eneste bekymring fra teamet – formen på dansegulvet etter kl. 22:00. 🕺"},
+    {h:"@ToastmasterTV", v:true, c:"#16a34a", src:"offisiell kanal", t:"Espen & Fredrik bekrefter pressekonferanse på Høymagasinet kl. 14:30. Bobler garantert til de frammøtte. 🥂"},
+    {h:"@DeadlineDayNO", v:false, c:"#7c3aed", src:"⭐⭐⭐", t:"BREAKING: Avsløringen skjer i Gamle Aker kirke kl. 13:00. Begge leire ventes til stede. Full enighet. 🔔"},
+    {h:"@LønnsLekkasjen", v:false, c:"#0891b2", src:"⭐", t:"Lønnsdetaljer: ubegrenset kjærlighet + 50 % av fjernkontrollen. Bonus utbetales ved oppvask. 😅"},
+    {h:"@FotballPåBryllup", v:true, c:"#db2777", src:"⭐⭐⭐⭐", t:"Eirin om signeringen: «Vi har fulgt ham lenge. Han passer perfekt inn i systemet vårt.» ❤️"},
+    {h:"@SupporterUnionFC", v:false, c:"#475569", src:"fanside", t:"Ungkar FC-fansen i sjokk: nøkkelspilleren borte før sesongstart. Klubben henter ingen erstatter. 😭"},
+    {h:"@TaktikkProffen", v:false, c:"#ca8a04", src:"⭐⭐", t:"Analyse: Jonas ventes i en mer defensiv rolle hjemme, men med full frihet til å angripe grillen i helgene. 🔥"},
+  ];
+
+  /* ====== BREAKING-overskrifter ====== */
+  const BREAKINGS = [
+    "Jonas til legesjekk – bestått! Klar for presentasjon i Gamle Aker kirke ✅",
+    "Eirin United bekrefter: personlige vilkår avtalt. Kun signaturen gjenstår ✍️",
+    "Toppkilde: Jonas har takket nei til alle andre tilbud – «hun er den eneste» 💘",
+    "Forloverne i hektisk møte – ryktes å forberede et innslag ingen glemmer 🎤",
+    "Dansegulvet meldes klart kl. 22:00. Eksperter advarer mot Jonas' moves 🕺",
+    "Ungkar FC senker flagget på halv stang. En æra er over 🏳️",
+    "Bryllupsreisen: destinasjon hemmeligholdt. Spekulasjonene går varme ✈️",
+  ];
+
+  /* ====== SPILLERKORT ====== */
+  const JONAS_CARD = {
+    ovr:"99", pos:"EKT", name:"JONAS", flag:"🇳🇴", crest:"💍",
+    stats:[ ["KJÆ","99"], ["LOJ","98"], ["GRI","95"], ["HUM","91"], ["DAN","72"], ["OPP","41"] ],
+    fee:"💰 Verdi: 1 livslangt JA + 2 katter"
+  };
+
+  /* ====== LIVE GJESTEFEED ======
+     Samme backend som bryllupsbackdrop: gjestene sender via send.html (QR),
+     Apps Script lagrer i Google Sheets, skjermen poller ?since=<id>.
+     URL-en skal være identisk med SCRIPT_URL i bryllupsbackdrop/config.js.
+     Kun meldinger som kommer inn ETTER at sendingen er i gang vises.
+     Test uten backend: åpne siden med ?demo=1 */
+  const FEED_URL = "https://script.google.com/macros/s/AKfycbyDo4xdYQm8JJAzTieFWE95Q5bMu0XF3DUJcO1WxAmWbesVbx4iRhLgtAQoOhInDmsZrA/exec";
+  const FEED_POLL_MS = 3000;      // hvor ofte vi ser etter nye meldinger
+  const FEED_MIN_GAP_MS = 2600;   // minste tid mellom hvert kort på skjermen
+  const FEED_MAX_CARDS = 3;       // maks synlige kort i feeden
+
+  /* ================= LYDMOTOR (Web Audio, ingen filer) ================= */
+  let actx=null, muted=false;
+  function ac(){ if(!actx){ actx=new (window.AudioContext||window.webkitAudioContext)(); } if(actx.state==="suspended") actx.resume(); return actx; }
+  function beep(freq=880, dur=.12, type="sine", gain=.25, delay=0){
+    if(muted) return;
+    const c=ac(), o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+    const t=c.currentTime+delay;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.start(t); o.stop(t+dur+.02);
+  }
+  const sndDing  =()=>{ beep(1318,.10,"triangle",.3); beep(1760,.18,"triangle",.28,.09); };
+  const sndCount =()=>beep(740,.09,"square",.2);
+  const sndHorn  =()=>{ [220,277,330].forEach((f,i)=>beep(f,1.2,"sawtooth",.18,i*.02)); beep(110,1.3,"sawtooth",.14); };
+  const sndPop   =()=>beep(520+Math.random()*400,.07,"square",.12);
+  const sndTweet =()=>{ beep(1046,.06,"sine",.14); beep(1568,.09,"sine",.11,.07); };
+
+  /* ================= MUSIKKMOTOR (Web Audio, ingen filer) ================= */
+  let musicMaster=null, loopGain=null, loopTimer=null, loopNext=0, loopBar=0, loopVol=0, vigGain=null;
+  function master(){
+    const c=ac();
+    if(!musicMaster){ musicMaster=c.createGain(); musicMaster.gain.value=muted?0:1; musicMaster.connect(c.destination); }
+    return musicMaster;
+  }
+  function mnote(f,t,dur,type,g,dest){
+    const c=ac(), o=c.createOscillator(), gn=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(f,t);
+    o.connect(gn); gn.connect(dest||master());
+    gn.gain.setValueAtTime(0,t);
+    gn.gain.linearRampToValueAtTime(g,t+.03);
+    gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.start(t); o.stop(t+dur+.06);
+  }
+  function noiseB(t,dur,g,f1,f2,dest){
+    const c=ac(), len=Math.max(1,(dur*c.sampleRate)|0), buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    const s=c.createBufferSource(); s.buffer=buf;
+    const flt=c.createBiquadFilter(); flt.type="bandpass"; flt.Q.value=.9;
+    flt.frequency.setValueAtTime(f1,t); if(f2) flt.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    const gn=c.createGain(); gn.gain.setValueAtTime(g,t); gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(flt); flt.connect(gn); gn.connect(dest||master());
+    s.start(t); s.stop(t+dur+.03);
+  }
+
+  /* Ventemusikk: myk hold-loop (Fmaj7 → G7 → Em7 → Am7) */
+  const HOLD_BPM=84, HBEAT=60/HOLD_BPM, HBAR=4*HBEAT;
+  const HOLD=[
+    {b:87.31,  p:[220,261.63,329.63],    m:[440,523.25,659.25,392]},
+    {b:98.00,  p:[246.94,293.66,349.23], m:[493.88,587.33,698.46,440]},
+    {b:82.41,  p:[196,246.94,293.66],    m:[392,493.88,587.33,659.25]},
+    {b:110.00, p:[196,261.63,329.63],    m:[440,523.25,659.25,392]},
+  ];
+  function holdBar(t,i){
+    const ch=HOLD[i%4];
+    mnote(ch.b,t,HBEAT*1.7,"sine",.22,loopGain);
+    mnote(ch.b*1.498,t+2*HBEAT,HBEAT*1.5,"sine",.15,loopGain);
+    ch.p.forEach(f=>mnote(f,t+.02,HBAR*.95,"sine",.05,loopGain));
+    if(Math.random()<.8) mnote(ch.m[(Math.random()*4)|0], t+HBEAT*(1+((Math.random()*2)|0)*.5), HBEAT*1.3,"triangle",.08,loopGain);
+    if(Math.random()<.45) mnote(ch.m[(Math.random()*4)|0], t+HBEAT*3, HBEAT*.9,"triangle",.06,loopGain);
+    noiseB(t+HBEAT,.06,.03,1800,0,loopGain);
+    noiseB(t+3*HBEAT,.06,.035,1800,0,loopGain);
+  }
+  function loopStart(vol,fade){
+    const c=ac(); master();
+    if(!loopGain){ loopGain=c.createGain(); loopGain.gain.value=0; loopGain.connect(musicMaster); }
+    loopVol=vol;
+    const g=loopGain.gain;
+    g.cancelScheduledValues(c.currentTime); g.setValueAtTime(g.value,c.currentTime);
+    g.linearRampToValueAtTime(vol,c.currentTime+(fade||1));
+    if(!loopTimer){
+      loopNext=c.currentTime+.1;
+      loopTimer=setInterval(()=>{
+        while(loopNext<ac().currentTime+1.3){ holdBar(loopNext,loopBar); loopNext+=HBAR; loopBar++; }
+      },300);
+    }
+  }
+  function loopFade(target,sec){
+    if(!loopGain) return; loopVol=target;
+    const c=ac(), g=loopGain.gain;
+    g.cancelScheduledValues(c.currentTime); g.setValueAtTime(g.value,c.currentTime);
+    g.linearRampToValueAtTime(Math.max(target,.0001),c.currentTime+sec);
+    if(target===0) setTimeout(()=>{ if(loopVol===0&&loopTimer){ clearInterval(loopTimer); loopTimer=null; } },sec*1000+150);
+  }
+
+  /* Vignettmusikk: pulserende sendestart, synket med animasjonen */
+  function stab(t,freqs,dur){
+    dur=dur||.42;
+    freqs.forEach(f=>{
+      mnote(f,t,dur,"sawtooth",.085,vigGain);
+      mnote(f*1.006,t,dur,"sawtooth",.065,vigGain);
+      mnote(f/2,t,dur,"square",.05,vigGain);
+    });
+  }
+  function timp(t,vol){
+    vol=vol||.55;
+    const c=ac(), o=c.createOscillator(), g=c.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(110,t); o.frequency.exponentialRampToValueAtTime(45,t+.35);
+    o.connect(g); g.connect(vigGain);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+.5);
+    o.start(t); o.stop(t+.55);
+  }
+  function braam(t,dur){ /* dyp "filmtrailer"-horn: detunet sag-stack gjennom lavpass */
+    const c=ac(), lp=c.createBiquadFilter();
+    lp.type="lowpass"; lp.Q.value=1.2;
+    lp.frequency.setValueAtTime(180,t);
+    lp.frequency.linearRampToValueAtTime(1600,t+dur*.55);
+    lp.frequency.linearRampToValueAtTime(250,t+dur);
+    lp.connect(vigGain);
+    [55,82.41,110,164.81].forEach(f=>{
+      [-9,0,9].forEach(det=>{
+        const o=c.createOscillator(), g=c.createGain();
+        o.type="sawtooth"; o.frequency.setValueAtTime(f,t); o.detune.value=det;
+        o.connect(g); g.connect(lp);
+        g.gain.setValueAtTime(.0001,t);
+        g.gain.linearRampToValueAtTime(.055,t+.09);
+        g.gain.setValueAtTime(.055,t+dur*.6);
+        g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+        o.start(t); o.stop(t+dur+.05);
+      });
+    });
+  }
+  function drone(t,dur){ /* stigende spennings-drone under nedtellingen */
+    const c=ac(), o=c.createOscillator(), g=c.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(36,t); o.frequency.linearRampToValueAtTime(56,t+dur);
+    o.connect(g); g.connect(vigGain);
+    g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.32,t+dur*.85); g.gain.exponentialRampToValueAtTime(.0001,t+dur+.25);
+    o.start(t); o.stop(t+dur+.3);
+    noiseB(t,dur,.05,140,700,vigGain);
+  }
+  function shimmer(t){ /* raskt arpeggio-glitter over sluttakkorden */
+    const ns=[880,1108.73,1318.51,1760,2217.46,2637.02];
+    for(let i=0;i<18;i++) mnote(ns[i%6]*(i>11?2:1), t+i*.065, .3, "triangle", .045, vigGain);
+  }
+  function boom(t){
+    const c=ac(), o=c.createOscillator(), g=c.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(85,t); o.frequency.exponentialRampToValueAtTime(30,t+1.1);
+    o.connect(g); g.connect(vigGain);
+    g.gain.setValueAtTime(.9,t); g.gain.exponentialRampToValueAtTime(.001,t+1.3);
+    o.start(t); o.stop(t+1.4);
+  }
+  function playVignetteMusic(){
+    const c=ac(); master();
+    vigGain=c.createGain(); vigGain.gain.value=1; vigGain.connect(musicMaster);
+    const t0=c.currentTime+.08, b=60/140;
+    /* fase A: nedtelling 3-2-1 med drone */
+    drone(t0,2.3);
+    mnote(660,t0+.05,.14,"square",.14,vigGain);
+    mnote(660,t0+.85,.14,"square",.14,vigGain);
+    mnote(990,t0+1.65,.5,"square",.17,vigGain);
+    /* fase B: tenning */
+    braam(t0+2.45,1.4);
+    for(let i=0;;i++){
+      const t=t0+2.5+i*b/2; if(t>t0+7.1) break;
+      mnote(i%4===0?55:110, t, b*.3, "sawtooth", .11, vigGain);
+      noiseB(t,.04,i%2?.05:.03,6500,0,vigGain);
+    }
+    /* fase C: stabs synket med DEADLINE/DAY */
+    stab(t0+3.5,[220,261.63,329.63],.45);
+    stab(t0+3.95,[174.61,220,261.63],.45);
+    stab(t0+4.5,[261.63,329.63,392],.7); timp(t0+4.5,.7);
+    noiseB(t0+4.5,.5,.12,7000,1200,vigGain);
+    stab(t0+5.2,[196,246.94,293.66],.5);
+    /* fase D: bygg med riser og trommevirvel */
+    noiseB(t0+5.4,1.8,.16,250,4000,vigGain);
+    (function(){ let t=t0+5.5, iv=.21; while(t<t0+7.05){ timp(t,.32); iv=Math.max(.065,iv*.87); t+=iv; } })();
+    /* fase E: PÅ LUFTA */
+    boom(t0+7.2);
+    noiseB(t0+7.2,1.4,.22,6000,600,vigGain);
+    stab(t0+7.2,[220,277.18,329.63,440],2.2);
+    shimmer(t0+7.3);
+  }
+  function toggleFullscreen(){
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+
+  /* ================= TICKER ================= */
+  function tweetEl(tw){
+    const i=tw.h.replace("@","").slice(0,2).toUpperCase();
+    return `<span class="tweet">
+      <span class="av" style="background:${tw.c}">${i}</span>
+      <span class="handle">${tw.h}</span>${tw.v?'<span class="check">✔</span>':''}
+      ${tw.src?`<span class="src">${tw.src}</span>`:''}
+      <span class="txt">${tw.t}</span></span>`;
+  }
+  const tHtml = TWEETS.map(tweetEl).join("");
+  document.getElementById("track").innerHTML = tHtml + tHtml;
+
+  /* ================= SPILLERKORT ================= */
+  (function(){
+    document.getElementById("c-ovr").textContent=JONAS_CARD.ovr;
+    document.getElementById("c-pos").textContent=JONAS_CARD.pos;
+    document.getElementById("c-flag").textContent=JONAS_CARD.flag;
+    document.getElementById("c-crest").textContent=JONAS_CARD.crest;
+    document.getElementById("c-name").textContent=JONAS_CARD.name;
+    document.getElementById("c-fee").textContent=JONAS_CARD.fee;
+    document.getElementById("c-stats").innerHTML=
+      JONAS_CARD.stats.map(s=>`<div><b>${s[1]}</b><span>${s[0]}</span></div>`).join("");
+  })();
+  const card=document.getElementById("card");
+  function toggleCard(){
+    const on=card.classList.toggle("show");
+    if(on) sndDing();
+  }
+
+  /* ================= KLOKKE ================= */
+  const clock=document.getElementById("clock"), scene=document.getElementById("scene"), track=document.getElementById("track");
+  let total=START_MINUTES*60, remaining=total, timer=null;
+  const fired={};
+  function fmt(s){ const m=Math.floor(s/60), x=s%60; return String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"); }
+  function tickerSpeed(){
+    let d=60;
+    if(remaining<=60) d=38;
+    if(remaining<=30) d=24;
+    if(remaining<=10) d=14;
+    track.style.setProperty("--ticker-dur", d+"s");
+  }
+  function render(){
+    clock.textContent = remaining===0 ? "FULL TID" : fmt(remaining);
+    clock.classList.toggle("warn", remaining<=60 && remaining>0);
+    clock.classList.toggle("done", remaining===0);
+    scene.classList.toggle("shake", remaining<=10 && remaining>0 && !!timer);
+    tickerSpeed();
+  }
+  function tick(){
+    if(remaining>0){
+      remaining--;
+      // deadline-dramatikk
+      if([30,20,10].includes(remaining)) showBreaking();
+      if(remaining<=10 && remaining>0) sndCount();
+      render();
+      if(remaining===0){ stop(); doneDeal(); }
+    }
+  }
+  function start(){ ac(); if(!timer){ timer=setInterval(tick,1000); } }
+  function stop(){ clearInterval(timer); timer=null; render(); }
+  function toggle(){ timer?stop():start(); }
+  function reset(){ stop(); remaining=total; render(); }
+  function addMin(n){ remaining=Math.max(0,remaining+n*60); total=Math.max(total,remaining); render(); }
+
+  /* ================= BREAKING ================= */
+  const bEl=document.getElementById("breaking"), bMsg=document.getElementById("breaking-msg");
+  let bIdx=0, bHide=null;
+  function showBreaking(txt){
+    bMsg.textContent = txt || BREAKINGS[bIdx++ % BREAKINGS.length];
+    bEl.classList.add("show"); sndDing();
+    clearTimeout(bHide);
+    bHide=setTimeout(()=>bEl.classList.remove("show"), 6500);
+  }
+
+  /* ================= LIVE GJESTEFEED ================= */
+  const feedEl=document.getElementById("feed"), feedTag=document.getElementById("feed-tag"), feedCards=document.getElementById("feed-cards");
+  let feedQueue=[], feedLastShown=0, feedSinceId=0, feedOn=true;
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const FEEDCOLORS=["#1d9bf0","#e2002a","#ff8a00","#16a34a","#7c3aed","#db2777","#0891b2","#ca8a04"];
+  function feedHash(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
+  function visGjestetweet(m){
+    const emoji=m.type==="emoji";
+    const name=(m.name||"Gjest i salen").trim()||"Gjest i salen";
+    const initialer=name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase()||"G";
+    const handle="@"+(name.replace(/\s+/g,"")||"gjest");
+    const col=FEEDCOLORS[feedHash(name)%FEEDCOLORS.length];
+    const el=document.createElement("div");
+    el.className="gtweet"+(emoji?" emoji":"");
+    el.innerHTML=
+      `<div class="gh"><span class="gav" style="background:${col}">${esc(initialer)}</span>`+
+      `<span><span class="gnavn">${esc(name)} <span class="check">✔</span></span><br>`+
+      `<span class="ghandle">${esc(handle)} · nå</span></span>`+
+      `<span class="gx">𝕏</span></div>`+
+      `<div class="gtxt">${esc(m.message||"")}</div>`;
+    feedCards.prepend(el);
+    sndTweet();
+    while(feedCards.children.length>FEED_MAX_CARDS) feedCards.lastElementChild.remove();
+  }
+  function feedFetch(){
+    if(!FEED_URL) return;
+    fetch(FEED_URL+"?since="+feedSinceId)
+      .then(r=>r.json())
+      .then(data=>{
+        feedTag.classList.remove("feil");
+        (data.messages||[]).forEach(m=>{
+          if(m.id>feedSinceId) feedSinceId=m.id;
+          // Historikk og meldinger sendt før sendestart vises ikke,
+          // kun det som kommer inn mens innslaget er i gang.
+          if(state==="live") feedQueue.push(m);
+        });
+      })
+      .catch(()=>feedTag.classList.add("feil"));
+  }
+  feedFetch();
+  setInterval(feedFetch,FEED_POLL_MS);
+  setInterval(()=>{
+    if(state!=="live"||!feedOn||!feedQueue.length) return;
+    const nå=Date.now();
+    if(nå-feedLastShown<FEED_MIN_GAP_MS) return;
+    feedLastShown=nå;
+    visGjestetweet(feedQueue.shift());
+  },700);
+  function toggleFeed(){
+    feedOn=!feedOn;
+    feedEl.classList.toggle("hidden",!feedOn);
+    document.getElementById("qrbug").classList.toggle("hidden",!feedOn);
+  }
+  /* Demomodus: ?demo=1 mater feeden med testmeldinger når sendingen er live */
+  if(new URLSearchParams(location.search).get("demo")){
+    const demo=[
+      {type:"text", name:"Tante Randi", message:"Tidenes signering! Gratulerer, Eirin og Jonas! 🥂"},
+      {type:"emoji", message:"💍"},
+      {type:"text", name:"Fredrik", message:"Her var det full klaff mellom klubb og spiller. Skål!"},
+      {type:"text", name:"Kollegene til Jonas", message:"Endelig en overgang han ikke trengte betenkningstid på 😄"},
+      {type:"emoji", message:"❤️"},
+      {type:"text", name:"Mormor", message:"Lykke til på ferden, kjære dere. Dette blir fint!"},
+    ];
+    let di=0;
+    setInterval(()=>{ if(state==="live") feedQueue.push(demo[di++%demo.length]); },4000);
+  }
+
+  /* ================= DONE DEAL + KONFETTI ================= */
+  const done=document.getElementById("done"), cv=document.getElementById("confetti"), ctx=cv.getContext("2d");
+  let parts=[], raf=null;
+  function sizeCanvas(){ cv.width=innerWidth; cv.height=innerHeight; }
+  addEventListener("resize", sizeCanvas); sizeCanvas();
+  const COLORS=["#ffd000","#ff8a00","#e2002a","#0a3aff","#16a34a","#ffffff","#7CFC9A"];
+  function burst(n){
+    for(let i=0;i<n;i++){
+      parts.push({
+        x:innerWidth*(.2+Math.random()*.6), y:innerHeight*.5,
+        vx:(Math.random()-.5)*16, vy:-(8+Math.random()*12),
+        g:.35+Math.random()*.2, s:6+Math.random()*8,
+        rot:Math.random()*6, vr:(Math.random()-.5)*.4,
+        col:COLORS[(Math.random()*COLORS.length)|0]
+      });
+    }
+  }
+  function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{
+      p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vx*=.99;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.col; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); ctx.restore();
+    });
+    parts=parts.filter(p=>p.y<cv.height+40);
+    if(parts.length){ raf=requestAnimationFrame(loop); }
+    else { raf=null; cv.style.display="none"; }
+  }
+  function doneDeal(){
+    done.classList.add("show");
+    cv.style.display="block";
+    sndHorn();
+    let shots=0;
+    const fire=()=>{ burst(80); for(let k=0;k<8;k++) setTimeout(sndPop,k*40); if(++shots<5) setTimeout(fire,400); };
+    fire();
+    if(!raf) loop();
+  }
+  function closeDone(){ done.classList.remove("show"); }
+
+  /* ================= LIVE-KLOKKE ØVERST ================= */
+  const liveClock=document.getElementById("liveclock"), sbClock=document.getElementById("sb-clock");
+  function updClocks(){
+    const d=new Date(), hh=String(d.getHours()).padStart(2,"0"), mm=String(d.getMinutes()).padStart(2,"0"), ss=String(d.getSeconds()).padStart(2,"0");
+    liveClock.textContent=hh+":"+mm;
+    sbClock.textContent=hh+":"+mm+":"+ss;
+  }
+  setInterval(updClocks,1000); updClocks();
+
+  /* ================= MUTE ================= */
+  const muteEl=document.getElementById("mute");
+  function toggleMute(){
+    muted=!muted; muteEl.textContent=muted?"🔇 Lyd av (M)":"🔊 Lyd på (M)"; muteEl.style.opacity=muted?1:.5;
+    if(musicMaster){ const c=ac(); musicMaster.gain.cancelScheduledValues(c.currentTime); musicMaster.gain.setValueAtTime(muted?0:1,c.currentTime); }
+  }
+
+  /* ================= HJELP ================= */
+  const help=document.getElementById("help");
+  let helpTimer=null; /* overlayet er kun reserve hvis popup blokkeres */
+  function flashHelp(){ help.classList.toggle("hidden"); clearTimeout(helpTimer); if(!help.classList.contains("hidden")) helpTimer=setTimeout(()=>help.classList.add("hidden"),7000); }
+  /* Hjelpen åpnes i eget vindu så den kan leses på operatørskjermen
+     uten å vises på storskjermen. Faller tilbake til overlay ved popup-blokkering. */
+  function openHelp(){
+    const w=window.open("","transferhjelp","width=460,height=780,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes");
+    if(!w){ flashHelp(); return; }
+    const rad=(k,t)=>`<div class="rad"><kbd>${k}</kbd><span>${t}</span></div>`;
+    w.document.open();
+    w.document.write(`<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8">
+<title>Studio-hjelp – Overgangsvindu</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0d0d0d;color:#eee;font-family:"Helvetica Neue",Arial,sans-serif;padding:22px 24px 28px;font-size:15px;line-height:1.5}
+  h1{font-size:19px;color:#ffd000;margin-bottom:2px;font-family:"Arial Black",sans-serif}
+  .sub{color:#999;font-size:12.5px;margin-bottom:16px}
+  h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#ffd000;margin:18px 0 7px;border-bottom:1px solid #2c2c2c;padding-bottom:5px}
+  .rad{display:flex;align-items:baseline;gap:12px;padding:4px 0}
+  kbd{flex:0 0 auto;min-width:88px;text-align:center;background:#fff;color:#111;border-radius:5px;padding:2px 8px;font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:12.5px}
+  .rad span{color:#ddd}
+  .tips{margin-top:20px;background:#1a1a1a;border-left:3px solid #ffd000;border-radius:6px;padding:10px 14px;color:#bbb;font-size:13px}
+  .tips b{color:#ffd000}
+  code{background:#222;padding:1px 6px;border-radius:4px;font-size:12.5px}
+</style></head><body>
+<h1>🎙️ Overgangsvindu – studio</h1>
+<div class="sub">Hurtigtaster for innslaget. Hold dette vinduet på din egen skjerm – det vises ikke på storskjermen.</div>
+<h2>Før sendingen (ventebildet)</h2>
+${rad("Enter","Start sendingen (eller klikk START-knappen)")}
+${rad("Klikk","Skru på ventemusikken (første klikk hvor som helst)")}
+${rad("F","Fullskjerm av/på – gjør dette før sendestart")}
+${rad("M","Lyd av/på")}
+${rad("H","Denne hjelpen")}
+<h2>Under vignetten (~9 sek)</h2>
+${rad("Esc","Hopp rett til studio (kjekt på øving)")}
+<h2>I studio (innslaget)</h2>
+${rad("Mellomrom","Start/pause nedtellingen (eller klikk i bildet)")}
+${rad("R","Nullstill klokka")}
+${rad("↑ / ↓","Pluss/minus ett minutt")}
+${rad("B","Breaking-banner (ny overskrift hver gang)")}
+${rad("C","Spillerkortet til Jonas av/på")}
+${rad("D","DONE DEAL-finale med konfetti (Esc lukker)")}
+${rad("T","Gjestefeed + QR-kode av/på")}
+${rad("M","Lyd av/på")}
+${rad("F","Fullskjerm av/på")}
+${rad("H","Denne hjelpen")}
+<div class="tips"><b>Tips:</b> Klokka utløser selv breaking ved 0:30 / 0:20 / 0:10 og DONE DEAL ved null. Gjestefeeden viser kun hilsener sendt etter sendestart. Test uten backend med <code>?demo=1</code> i adressen.</div>
+</body></html>`);
+    w.document.close();
+    w.focus();
+  }
+
+  /* ================= TASTATUR ================= */
+  document.addEventListener("keydown", e=>{
+    // Q = avslutt innslaget og ton tilbake til backdroppen (kun når vi kjører som overlay)
+    if(e.key==="q"||e.key==="Q"){
+      e.preventDefault(); loopFade(0,.6);
+      if(window.parent!==window){ window.parent.postMessage({tv:"lukk"},"*"); }
+      return;
+    }
+    if(state==="standby"){
+      if(e.key==="Enter"){ e.preventDefault(); startBroadcast(); return; }
+      if(e.key==="f"||e.key==="F"){ toggleFullscreen(); return; }
+      if(e.key==="m"||e.key==="M"){ toggleMute(); return; }
+      if(e.key==="h"||e.key==="H"){ openHelp(); return; }
+      armAudio(); return;
+    }
+    if(state==="vignette"){
+      if(e.key==="Escape") skipVignette();
+      if(e.key==="m"||e.key==="M") toggleMute();
+      return;
+    }
+    switch(e.key){
+      case " ": e.preventDefault(); toggle(); break;
+      case "r": case "R": reset(); break;
+      case "ArrowUp": addMin(1); break;
+      case "ArrowDown": addMin(-1); break;
+      case "b": case "B": showBreaking(); break;
+      case "c": case "C": toggleCard(); break;
+      case "d": case "D": doneDeal(); break;
+      case "m": case "M": toggleMute(); break;
+      case "t": case "T": toggleFeed(); break;
+      case "h": case "H": openHelp(); break;
+      case "Escape": closeDone(); card.classList.remove("show"); break;
+      case "f": case "F": toggleFullscreen(); break;
+    }
+  });
+  // klikk i scenen = start/pause (men ikke når overlay/ticker er aktiv)
+  scene.addEventListener("click", e=>{
+    if(e.target.closest(".ticker")||e.target.closest(".done-overlay")||e.target.closest(".card")) return;
+    ac(); toggle();
+  });
+
+  /* ================= SENDESTART (ventebilde → vignett → direkte) ================= */
+  let state="standby", goLiveTimer=null, audioArmed=false;
+  const standbyEl=document.getElementById("standby"), vignetteEl=document.getElementById("vignette");
+  function armAudio(){
+    if(audioArmed) return; audioArmed=true;
+    ac(); loopStart(.5,1.5);
+    document.getElementById("sb-lyd").textContent="🔊 Ventemusikk på";
+  }
+  function startBroadcast(){
+    if(state!=="standby") return;
+    state="vignette"; ac();
+    loopFade(0,.4);
+    standbyEl.classList.add("gone");
+    vignetteEl.classList.add("play");
+    playVignetteMusic();
+    goLiveTimer=setTimeout(goLive,9200);
+  }
+  function skipVignette(){
+    if(state!=="vignette") return;
+    if(vigGain){ const c=ac(); vigGain.gain.cancelScheduledValues(c.currentTime); vigGain.gain.setValueAtTime(.0001,c.currentTime); }
+    goLive();
+  }
+  function goLive(){
+    if(state==="live") return;
+    state="live"; clearTimeout(goLiveTimer);
+    vignetteEl.classList.add("gone");
+    setTimeout(()=>vignetteEl.classList.remove("play","gone"),700);
+    loopStart(.15,2.5); /* lav ventemusikk under innslaget */
+  }
+  standbyEl.addEventListener("click", e=>{
+    if(e.target.closest(".sb-start")){ startBroadcast(); return; }
+    armAudio();
+  });
+
+  render();
+  if(autostart) start();
+</script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eirin &amp; Jonas – 11. juli 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Parisienne&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --krem: #fbf8f1;
+    --krem-dyp: #f4eee0;
+    --salvie: #7d977d;
+    --salvie-dyp: #5c755c;
+    --salvie-lys: #aabfa8;
+    --gull: #b9974e;
+    --gull-lys: #d4bc82;
+    --blekk: #4a5348;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 42%, #fffdf7 0%, var(--krem) 55%, var(--krem-dyp) 100%);
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--blekk);
+    cursor: none;
+  }
+
+  /* ---------- Botaniske hjørner ---------- */
+  .botanikk {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.85;
+  }
+  .botanikk svg { display: block; }
+  .hjorne-tv { top: -20px; left: -20px; transform-origin: top left; animation: svai 11s ease-in-out infinite; }
+  .hjorne-th { top: -20px; right: -20px; transform-origin: top right; transform: scaleX(-1); animation: svai-speil 13s ease-in-out infinite; }
+  .hjorne-nv { bottom: -20px; left: -20px; transform-origin: bottom left; transform: scaleY(-1); animation: svai-speil 12s ease-in-out infinite 1.5s; }
+  @keyframes svai {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(1.6deg); }
+  }
+  @keyframes svai-speil {
+    0%, 100% { transform: scaleX(-1) rotate(0deg); }
+    50% { transform: scaleX(-1) rotate(1.6deg); }
+  }
+  .hjorne-nv { animation-name: svai-nv; }
+  @keyframes svai-nv {
+    0%, 100% { transform: scaleY(-1) rotate(0deg); }
+    50% { transform: scaleY(-1) rotate(-1.4deg); }
+  }
+
+  /* ---------- Monogram ---------- */
+  .monogram {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+    text-align: center;
+  }
+  .initialer {
+    font-family: 'Parisienne', cursive;
+    font-size: clamp(7rem, 17vw, 15rem);
+    line-height: 1;
+    color: var(--gull);
+    text-shadow: 0 2px 24px rgba(185, 151, 78, 0.18);
+    animation: pust 7s ease-in-out infinite;
+  }
+  .initialer .amp {
+    font-size: 0.45em;
+    color: var(--salvie);
+    vertical-align: 12%;
+    margin: 0 0.06em;
+  }
+  @keyframes pust {
+    0%, 100% { transform: scale(1); text-shadow: 0 2px 24px rgba(185,151,78,0.14); }
+    50% { transform: scale(1.015); text-shadow: 0 2px 34px rgba(185,151,78,0.3); }
+  }
+  .navn {
+    font-size: clamp(1.6rem, 3.4vw, 3rem);
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    margin-top: 0.7em;
+    color: var(--blekk);
+  }
+  .navn .og { color: var(--gull); letter-spacing: 0; }
+  .skille {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 1.1em;
+    color: var(--salvie);
+  }
+  .skille::before, .skille::after {
+    content: "";
+    display: block;
+    width: clamp(60px, 9vw, 130px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gull-lys));
+  }
+  .skille::after { background: linear-gradient(90deg, var(--gull-lys), transparent); }
+  .dato {
+    font-size: clamp(1.05rem, 1.9vw, 1.6rem);
+    font-style: italic;
+    letter-spacing: 0.22em;
+    color: var(--salvie-dyp);
+  }
+
+  /* ---------- Drivende blader og glimt ---------- */
+  .partikkel {
+    position: fixed;
+    top: -40px;
+    pointer-events: none;
+    z-index: 1;
+    animation: driv linear forwards;
+  }
+  @keyframes driv {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    8%   { opacity: var(--maks-o, 0.5); }
+    88%  { opacity: var(--maks-o, 0.5); }
+    100% { transform: translate(var(--dx), 106vh) rotate(var(--rot)); opacity: 0; }
+  }
+  .glimt {
+    position: fixed;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,188,130,0.95) 0%, rgba(212,188,130,0) 70%);
+    pointer-events: none;
+    z-index: 1;
+    animation: glitre ease-in-out forwards;
+  }
+  @keyframes glitre {
+    0%, 100% { opacity: 0; transform: scale(0.4); }
+    50% { opacity: 1; transform: scale(1.7); }
+  }
+
+  /* ---------- Gjestemeldinger ---------- */
+  #meldinger {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
+  }
+  .melding {
+    position: absolute;
+    bottom: -180px;
+    right: calc(3vw + var(--x-offset, 0px));
+    max-width: min(30vw, 420px);
+    background: rgba(255, 255, 253, 0.92);
+    border: 1px solid rgba(170, 191, 168, 0.55);
+    border-radius: 16px 16px 4px 16px;
+    padding: 16px 22px;
+    box-shadow: 0 6px 26px rgba(92, 117, 92, 0.13);
+    animation: stig var(--varighet, 20s) linear forwards;
+    backdrop-filter: blur(2px);
+  }
+  .melding::after {
+    content: "";
+    position: absolute;
+    left: 18px; right: 18px; top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gull-lys), transparent);
+    border-radius: 2px;
+  }
+  .melding .tekst {
+    font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .melding .avsender {
+    margin-top: 6px;
+    font-style: italic;
+    font-size: clamp(0.95rem, 1.3vw, 1.2rem);
+    color: var(--gull);
+  }
+  .melding .avsender::before { content: "— "; color: var(--salvie); }
+  .emoji-flyt {
+    position: absolute;
+    bottom: -120px;
+    right: calc(4vw + var(--x-offset, 0px));
+    font-size: clamp(3rem, 5.5vw, 5rem);
+    animation: stig-emoji var(--varighet, 14s) ease-out forwards;
+    filter: drop-shadow(0 4px 10px rgba(92,117,92,0.2));
+  }
+  @keyframes stig {
+    0%   { transform: translateY(0) translateX(0) rotate(0.4deg); opacity: 0; }
+    5%   { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(calc(-100vh - 260px)) translateX(var(--sving, -30px)) rotate(-0.6deg); opacity: 0; }
+  }
+  @keyframes stig-emoji {
+    0%   { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+    6%   { opacity: 1; transform: translateY(-6vh) scale(1.1) rotate(-6deg); }
+    75%  { opacity: 1; }
+    100% { transform: translateY(calc(-100vh - 200px)) translateX(var(--sving, -40px)) scale(1) rotate(8deg); opacity: 0; }
+  }
+
+  /* ---------- QR-hjørne ---------- */
+  .qr-boks {
+    position: fixed;
+    bottom: 26px;
+    left: 26px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 253, 0.85);
+    border: 1px solid rgba(170, 191, 168, 0.5);
+    border-radius: 14px;
+    padding: 12px 18px 12px 12px;
+    box-shadow: 0 4px 18px rgba(92, 117, 92, 0.1);
+  }
+  .qr-boks #qr { width: 84px; height: 84px; }
+  .qr-boks #qr img, .qr-boks #qr canvas { width: 84px !important; height: 84px !important; }
+  .qr-tekst { font-size: 1.15rem; line-height: 1.3; }
+  .qr-tekst strong { color: var(--salvie-dyp); font-weight: 600; }
+  .qr-tekst em { color: var(--gull); font-style: italic; font-size: 0.95rem; }
+
+  /* ---------- Statusprikk (diskret) ---------- */
+  #status {
+    position: fixed;
+    top: 14px; right: 16px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--salvie-lys);
+    opacity: 0.35;
+    z-index: 5;
+    transition: background 0.5s;
+  }
+  #status.feil { background: #c98b6b; opacity: 0.7; }
+
+  #fullskjerm-hint {
+    position: fixed;
+    top: 16px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--salvie);
+    opacity: 0.75;
+    transition: opacity 1s;
+    pointer-events: none;
+  }
+
+  /* ---------- Transfervindu-overlay (Sky Sports-innslaget) ---------- */
+  #tv-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.1s ease;
+  }
+  #tv-overlay.vis {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+
+<div id="fullskjerm-hint">Klikk hvor som helst for fullskjerm</div>
+<div id="status" title="Tilkobling"></div>
+
+<!-- Botaniske hjørner: eukalyptusgrener -->
+<div class="botanikk hjorne-tv">
+  <svg width="360" height="330" viewBox="0 0 360 330" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 4 C 60 60, 130 110, 225 150" stroke="#7d977d" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M6 10 C 40 100, 80 190, 130 265" stroke="#8fa98c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <g fill="#aabfa8">
+      <ellipse cx="52" cy="46" rx="17" ry="9" transform="rotate(38 52 46)"/>
+      <ellipse cx="96" cy="76" rx="18" ry="9.5" transform="rotate(28 96 76)"/>
+      <ellipse cx="143" cy="103" rx="17" ry="9" transform="rotate(22 143 103)"/>
+      <ellipse cx="188" cy="128" rx="16" ry="8.5" transform="rotate(18 188 128)"/>
+      <ellipse cx="222" cy="147" rx="13" ry="7" transform="rotate(15 222 147)"/>
+    </g>
+    <g fill="#8fa98c">
+      <ellipse cx="34" cy="72" rx="16" ry="8.5" transform="rotate(68 34 72)"/>
+      <ellipse cx="58" cy="130" rx="17" ry="9" transform="rotate(62 58 130)"/>
+      <ellipse cx="86" cy="188" rx="16" ry="8.5" transform="rotate(58 86 188)"/>
+      <ellipse cx="112" cy="240" rx="15" ry="8" transform="rotate(55 112 240)"/>
+      <ellipse cx="129" cy="272" rx="12" ry="6.5" transform="rotate(52 129 272)"/>
+    </g>
+    <g fill="#d4bc82" opacity="0.8">
+      <circle cx="70" cy="58" r="4.2"/>
+      <circle cx="118" cy="90" r="3.6"/>
+      <circle cx="47" cy="105" r="3.9"/>
+      <circle cx="74" cy="163" r="3.3"/>
+      <circle cx="165" cy="117" r="3.4"/>
+    </g>
+  </svg>
+</div>
+<div class="botanikk hjorne-th">
+  <svg width="320" height="290" viewBox="0 0 320 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6 4 C 55 55, 120 100, 205 138" stroke="#7d977d" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+    <path d="M5 9 C 36 90, 72 170, 118 238" stroke="#8fa98c" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+    <g fill="#aabfa8">
+      <ellipse cx="48" cy="42" rx="16" ry="8.5" transform="rotate(38 48 42)"/>
+      <ellipse cx="90" cy="70" rx="17" ry="9" transform="rotate(28 90 70)"/>
+      <ellipse cx="134" cy="96" rx="16" ry="8.5" transform="rotate(22 134 96)"/>
+      <ellipse cx="176" cy="119" rx="14" ry="7.5" transform="rotate(18 176 119)"/>
+    </g>
+    <g fill="#8fa98c">
+      <ellipse cx="30" cy="66" rx="15" ry="8" transform="rotate(68 30 66)"/>
+      <ellipse cx="52" cy="118" rx="16" ry="8.5" transform="rotate(62 52 118)"/>
+      <ellipse cx="78" cy="170" rx="15" ry="8" transform="rotate(58 78 170)"/>
+      <ellipse cx="102" cy="216" rx="13" ry="7" transform="rotate(55 102 216)"/>
+    </g>
+    <g fill="#d4bc82" opacity="0.8">
+      <circle cx="64" cy="52" r="3.8"/>
+      <circle cx="108" cy="82" r="3.3"/>
+      <circle cx="42" cy="95" r="3.5"/>
+      <circle cx="66" cy="147" r="3"/>
+    </g>
+  </svg>
+</div>
+<div class="botanikk hjorne-nv">
+  <svg width="280" height="250" viewBox="0 0 280 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 4 C 48 48, 105 88, 180 120" stroke="#8fa98c" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <g fill="#aabfa8">
+      <ellipse cx="42" cy="37" rx="14" ry="7.5" transform="rotate(38 42 37)"/>
+      <ellipse cx="80" cy="62" rx="15" ry="8" transform="rotate(28 80 62)"/>
+      <ellipse cx="120" cy="86" rx="14" ry="7.5" transform="rotate(22 120 86)"/>
+      <ellipse cx="156" cy="106" rx="12" ry="6.5" transform="rotate(18 156 106)"/>
+    </g>
+    <g fill="#d4bc82" opacity="0.75">
+      <circle cx="58" cy="46" r="3.3"/>
+      <circle cx="98" cy="73" r="2.9"/>
+    </g>
+  </svg>
+</div>
+
+<!-- Monogram -->
+<div class="monogram">
+  <div class="initialer">E<span class="amp">&amp;</span>J</div>
+  <div class="navn" id="navn"></div>
+  <div class="skille"><span>&#10087;</span></div>
+  <div class="dato" id="dato"></div>
+</div>
+
+<!-- Gjestemeldinger -->
+<div id="meldinger"></div>
+
+<!-- Transfervindu-innslag: fullskjerms-overlay som toner opp over backdroppen (tast T) -->
+<iframe id="tv-overlay" src="transfervindu.html" title="Overgangsvindu"
+        allow="autoplay; fullscreen"></iframe>
+
+<!-- QR til gjestesiden -->
+<div class="qr-boks">
+  <div id="qr"></div>
+  <div class="qr-tekst">
+    <strong>Send en hilsen til brudeparet</strong><br>
+    <em id="qr-url">skann med mobilen 💌</em>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  document.getElementById("navn").innerHTML =
+    CONFIG.brud + ' <span class="og">&amp;</span> ' + CONFIG.brudgom;
+  document.getElementById("dato").textContent = CONFIG.dato;
+
+  // ---------- QR-kode til gjestesiden ----------
+  var sendUrl = location.href.replace(/index\.html.*$/, "").replace(/[?#].*$/, "");
+  if (!/\/$/.test(sendUrl)) sendUrl += "/";
+  sendUrl += "send.html";
+  new QRCode(document.getElementById("qr"), {
+    text: sendUrl, width: 84, height: 84,
+    colorDark: "#5c755c", colorLight: "#ffffff",
+  });
+
+  // ---------- Fullskjerm + wake lock ----------
+  var hint = document.getElementById("fullskjerm-hint");
+  document.addEventListener("click", function () {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(function () {});
+    }
+    hint.style.opacity = "0";
+  });
+  setTimeout(function () { hint.style.opacity = "0"; }, 12000);
+
+  var wakeLock = null;
+  function holdVaaken() {
+    if ("wakeLock" in navigator) {
+      navigator.wakeLock.request("screen")
+        .then(function (wl) { wakeLock = wl; })
+        .catch(function () {});
+    }
+  }
+  holdVaaken();
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") holdVaaken();
+  });
+
+  // ---------- Drivende blader og gullglimt ----------
+  var LEAF_COLORS = ["#aabfa8", "#8fa98c", "#c5d4c2", "#d4bc82"];
+  function lagBlad() {
+    var el = document.createElement("div");
+    el.className = "partikkel";
+    var size = 9 + Math.random() * 13;
+    var c = LEAF_COLORS[Math.floor(Math.random() * LEAF_COLORS.length)];
+    el.innerHTML =
+      '<svg width="' + size * 2 + '" height="' + size + '" viewBox="0 0 20 10">' +
+      '<ellipse cx="10" cy="5" rx="9" ry="4.2" fill="' + c + '"/></svg>';
+    el.style.left = Math.random() * 100 + "vw";
+    el.style.setProperty("--dx", (Math.random() * 160 - 80) + "px");
+    el.style.setProperty("--rot", (Math.random() * 480 - 240) + "deg");
+    el.style.setProperty("--maks-o", (0.3 + Math.random() * 0.35).toFixed(2));
+    el.style.animationDuration = (16 + Math.random() * 16) + "s";
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 34000);
+  }
+  function lagGlimt() {
+    var el = document.createElement("div");
+    el.className = "glimt";
+    el.style.left = Math.random() * 100 + "vw";
+    el.style.top = Math.random() * 100 + "vh";
+    el.style.animationDuration = (2.5 + Math.random() * 3) + "s";
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 6000);
+  }
+  setInterval(lagBlad, 2600);
+  setInterval(lagGlimt, 1400);
+  for (var i = 0; i < 6; i++) setTimeout(lagBlad, i * 700);
+
+  // ---------- Meldingsvisning ----------
+  var kø = [];
+  var sisteVist = 0;
+
+  function visNeste() {
+    if (kø.length === 0) return;
+    var nå = Date.now();
+    if (nå - sisteVist < CONFIG.minMsBetweenMessages) return;
+    sisteVist = nå;
+    var m = kø.shift();
+    var beholder = document.getElementById("meldinger");
+    var el = document.createElement("div");
+    var xOffset = Math.random() * 90;
+    var sving = -(20 + Math.random() * 70);
+
+    if (m.type === "emoji") {
+      el.className = "emoji-flyt";
+      el.textContent = m.message;
+      el.style.setProperty("--varighet", (12 + Math.random() * 4) + "s");
+    } else {
+      el.className = "melding";
+      var tekst = document.createElement("div");
+      tekst.className = "tekst";
+      tekst.textContent = m.message;
+      el.appendChild(tekst);
+      if (m.name) {
+        var avs = document.createElement("div");
+        avs.className = "avsender";
+        avs.textContent = m.name;
+        el.appendChild(avs);
+      }
+      el.style.setProperty("--varighet", (19 + Math.random() * 5) + "s");
+    }
+    el.style.setProperty("--x-offset", xOffset + "px");
+    el.style.setProperty("--sving", sving + "px");
+    beholder.appendChild(el);
+    setTimeout(function () { el.remove(); }, 26000);
+  }
+  setInterval(visNeste, 800);
+
+  // ---------- Polling mot Apps Script ----------
+  var sisteId = 0;
+  var status = document.getElementById("status");
+  var førsteHenting = true;
+
+  function hent() {
+    if (!SCRIPT_URL) return;
+    fetch(SCRIPT_URL + "?since=" + sisteId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        status.classList.remove("feil");
+        (data.messages || []).forEach(function (m) {
+          if (m.id > sisteId) sisteId = m.id;
+          // Ved første henting: ikke spill av hele historikken,
+          // bare noter hvor vi er og vis kun det som kommer heretter.
+          if (!førsteHenting) kø.push(m);
+        });
+        førsteHenting = false;
+      })
+      .catch(function () { status.classList.add("feil"); });
+  }
+  hent();
+  setInterval(hent, CONFIG.pollInterval);
+
+  // ---------- Demomodus: ?demo=1 ----------
+  if (new URLSearchParams(location.search).get("demo")) {
+    var demo = [
+      { type: "text", name: "Tante Randi", message: "Så utrolig vakre dere er! Gratulerer med dagen! 🥂" },
+      { type: "emoji", message: "💍" },
+      { type: "text", name: "Fredrik", message: "For et par! Skål for Eirin og Jonas!" },
+      { type: "emoji", message: "❤️" },
+      { type: "text", name: "Kollegene til Jonas", message: "Endelig fikk han sagt ja til noe uten å be om betenkningstid 😄" },
+      { type: "emoji", message: "🥂" },
+      { type: "text", name: "Mormor", message: "Lykke til på ferden, kjære dere. Dette blir fint!" },
+      { type: "emoji", message: "💃" },
+    ];
+    var d = 0;
+    setInterval(function () {
+      kø.push(demo[d % demo.length]);
+      d++;
+    }, 3500);
+  }
+
+  // ---------- Transfervindu-overlay ----------
+  // Tast T toner Sky Sports-innslaget opp over backdroppen. Inne i innslaget
+  // styrer du som vanlig (Enter start, mellomrom, B/C/D osv.). Tast Q toner
+  // det ut igjen og nullstiller det tilbake til ventebildet for ev. reprise.
+  var tv = document.getElementById("tv-overlay");
+  var tvAapen = false;
+
+  function aapneTV() {
+    if (tvAapen) return;
+    tvAapen = true;
+    tv.classList.add("vis");
+    // gi iframe-en tastaturfokus når den er synlig, så innslagets taster virker
+    setTimeout(function () {
+      try { tv.contentWindow.focus(); } catch (e) {}
+    }, 60);
+  }
+
+  function lukkTV() {
+    if (!tvAapen) return;
+    tvAapen = false;
+    tv.classList.remove("vis");
+    // ta fokus tilbake til backdroppen så T virker igjen
+    try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
+    window.focus();
+    // nullstill innslaget bak gardinen når det er ferdig tonet ut
+    setTimeout(function () {
+      try { tv.contentWindow.location.reload(); }
+      catch (e) { tv.src = tv.src; }
+    }, 1200);
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (!tvAapen && (e.key === "t" || e.key === "T")) {
+      e.preventDefault();
+      aapneTV();
+    }
+  });
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.tv === "lukk") lukkTV();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Send en hilsen – Eirin &amp; Jonas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Parisienne&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --krem: #fbf8f1;
+    --krem-dyp: #f4eee0;
+    --salvie: #7d977d;
+    --salvie-dyp: #5c755c;
+    --salvie-lys: #aabfa8;
+    --gull: #b9974e;
+    --gull-lys: #d4bc82;
+    --blekk: #4a5348;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 20%, #fffdf7 0%, var(--krem) 55%, var(--krem-dyp) 100%);
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--blekk);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 20px 48px;
+  }
+  .topp { text-align: center; margin-bottom: 26px; }
+  .initialer {
+    font-family: 'Parisienne', cursive;
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--gull);
+  }
+  .initialer .amp { font-size: 0.45em; color: var(--salvie); vertical-align: 12%; }
+  .undertittel {
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--salvie-dyp);
+    margin-top: 6px;
+  }
+  .kort {
+    width: 100%;
+    max-width: 460px;
+    background: rgba(255,255,253,0.9);
+    border: 1px solid rgba(170,191,168,0.5);
+    border-radius: 18px;
+    padding: 24px 22px;
+    box-shadow: 0 6px 26px rgba(92,117,92,0.12);
+  }
+  label {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--salvie-dyp);
+    margin-bottom: 6px;
+  }
+  input, textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.15rem;
+    color: var(--blekk);
+    background: #fffefb;
+    border: 1px solid var(--salvie-lys);
+    border-radius: 10px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--gull);
+    box-shadow: 0 0 0 3px rgba(185,151,78,0.15);
+  }
+  textarea { resize: none; height: 110px; margin-bottom: 4px; }
+  .teller { text-align: right; font-size: 0.9rem; color: var(--salvie); margin-bottom: 16px; }
+  .felt { margin-bottom: 18px; }
+  button.send {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #fffdf7;
+    background: linear-gradient(135deg, var(--salvie) 0%, var(--salvie-dyp) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  button.send:active { transform: scale(0.98); }
+  button.send:disabled { opacity: 0.55; cursor: default; }
+
+  .emoji-tittel {
+    text-align: center;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--salvie-dyp);
+    margin: 26px 0 12px;
+  }
+  .emoji-rad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 460px;
+  }
+  .emoji-rad button {
+    font-size: 2rem;
+    background: rgba(255,255,253,0.9);
+    border: 1px solid rgba(170,191,168,0.5);
+    border-radius: 14px;
+    padding: 12px 0;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(92,117,92,0.08);
+    transition: transform 0.12s;
+  }
+  .emoji-rad button:active { transform: scale(1.15); }
+
+  .kvittering {
+    position: fixed;
+    left: 50%; bottom: 30px;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--salvie-dyp);
+    color: #fffdf7;
+    font-size: 1.15rem;
+    padding: 12px 26px;
+    border-radius: 999px;
+    box-shadow: 0 8px 26px rgba(74,83,72,0.3);
+    transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+    z-index: 10;
+    text-align: center;
+  }
+  .kvittering.vis { transform: translateX(-50%) translateY(0); }
+  .kvittering.advarsel { background: #b07a52; }
+  .fot {
+    margin-top: 34px;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--salvie);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topp">
+  <div class="initialer">E<span class="amp">&amp;</span>J</div>
+  <div class="undertittel">Send en hilsen til storskjermen 💌</div>
+</div>
+
+<div class="kort">
+  <div class="felt">
+    <label for="navn">Navnet ditt</label>
+    <input id="navn" type="text" maxlength="40" placeholder="F.eks. Tante Randi" autocomplete="name">
+  </div>
+  <div class="felt" style="margin-bottom:0;">
+    <label for="melding">Hilsen til brudeparet</label>
+    <textarea id="melding" maxlength="200" placeholder="Skriv noe fint (eller morsomt) …"></textarea>
+    <div class="teller"><span id="antall">0</span>/200</div>
+  </div>
+  <button class="send" id="sendknapp">Send hilsen</button>
+</div>
+
+<div class="emoji-tittel">… eller send en rask emoji rett på skjermen</div>
+<div class="emoji-rad" id="emojier"></div>
+
+<div class="kvittering" id="kvittering"></div>
+<div class="fot">Hilsener vises på storskjermen og samles i gjesteboken til Eirin &amp; Jonas ✨</div>
+
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var EMOJIER = ["💍", "❤️", "🥂", "🎉", "💃", "🕺", "😍", "✨"];
+  var navnFelt = document.getElementById("navn");
+  var meldingFelt = document.getElementById("melding");
+  var antall = document.getElementById("antall");
+  var sendKnapp = document.getElementById("sendknapp");
+  var kvittering = document.getElementById("kvittering");
+
+  // Husk navnet mellom besøk
+  try { navnFelt.value = localStorage.getItem("ej_navn") || ""; } catch (e) {}
+
+  meldingFelt.addEventListener("input", function () {
+    antall.textContent = meldingFelt.value.length;
+  });
+
+  function visKvittering(tekst, erAdvarsel) {
+    kvittering.textContent = tekst;
+    kvittering.classList.toggle("advarsel", !!erAdvarsel);
+    kvittering.classList.add("vis");
+    setTimeout(function () { kvittering.classList.remove("vis"); }, 3200);
+  }
+
+  // ---------- Sending med offline-kø ----------
+  function lesKø() {
+    try { return JSON.parse(localStorage.getItem("ej_kø") || "[]"); } catch (e) { return []; }
+  }
+  function skrivKø(kø) {
+    try { localStorage.setItem("ej_kø", JSON.stringify(kø)); } catch (e) {}
+  }
+
+  function nyClientId() {
+    return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function postTilBackend(item) {
+    var body = new URLSearchParams();
+    body.append("name", item.name);
+    body.append("message", item.message);
+    body.append("type", item.type);
+    body.append("clientId", item.clientId);
+    return fetch(SCRIPT_URL, { method: "POST", body: body })
+      .then(function (r) {
+        if (r.ok) {
+          return r.json().catch(function () { return { ok: true }; });
+        }
+        // Apps Script lagrer og svarer med redirect til googleusercontent.
+        // Det hoppet svarer av og til 404 selv om meldingen ER lagret,
+        // så en redirectet feilstatus regnes som levert (ellers dupliseres
+        // meldingen av køen).
+        if (r.redirected) return { ok: true };
+        throw new Error("HTTP " + r.status);
+      });
+  }
+
+  function send(item) {
+    if (!SCRIPT_URL) {
+      visKvittering("Oppsett mangler: SCRIPT_URL er ikke satt i config.js", true);
+      return;
+    }
+    postTilBackend(item)
+      .then(function (svar) {
+        if (svar && svar.ok === false) {
+          visKvittering(svar.error || "Meldingen ble ikke godtatt", true);
+        } else {
+          visKvittering(item.type === "emoji" ? item.message + "  sendt til skjermen!" : "Hilsen sendt! 💌");
+        }
+      })
+      .catch(function () {
+        // Nettet sviktet – legg i kø og prøv igjen automatisk
+        var kø = lesKø();
+        kø.push(item);
+        skrivKø(kø);
+        visKvittering("Dårlig dekning – hilsenen sendes automatisk straks nettet er tilbake", true);
+      });
+  }
+
+  function tømKø() {
+    var kø = lesKø();
+    if (kø.length === 0 || !SCRIPT_URL) return;
+    var item = kø[0];
+    postTilBackend(item)
+      .then(function () {
+        var k = lesKø();
+        k.shift();
+        skrivKø(k);
+        visKvittering("Hilsen levert! 💌");
+        tømKø();
+      })
+      .catch(function () {});
+  }
+  setInterval(tømKø, 8000);
+  window.addEventListener("online", tømKø);
+
+  // ---------- Tekstmelding ----------
+  sendKnapp.addEventListener("click", function () {
+    var melding = meldingFelt.value.trim();
+    var navn = navnFelt.value.trim();
+    if (!melding) {
+      visKvittering("Skriv en hilsen først 🙂", true);
+      return;
+    }
+    try { localStorage.setItem("ej_navn", navn); } catch (e) {}
+    sendKnapp.disabled = true;
+    setTimeout(function () { sendKnapp.disabled = false; }, 2500);
+    send({ name: navn, message: melding, type: "text", clientId: nyClientId() });
+    meldingFelt.value = "";
+    antall.textContent = "0";
+  });
+
+  // ---------- Emojier ----------
+  var emojiBeholder = document.getElementById("emojier");
+  EMOJIER.forEach(function (e) {
+    var b = document.createElement("button");
+    b.textContent = e;
+    b.addEventListener("click", function () {
+      b.disabled = true;
+      setTimeout(function () { b.disabled = false; }, 2000);
+      send({ name: navnFelt.value.trim(), message: e, type: "emoji", clientId: nyClientId() });
+    });
+    emojiBeholder.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>
