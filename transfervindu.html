@@ -474,7 +474,7 @@
       <div class="tick">✅</div>
       <h1>DONE <span>DEAL!</span></h1>
       <p id="done-sub">Jonas har signert for Eirin United 💍</p>
-      <div class="hint">Trykk <b>Esc</b> for å lukke</div>
+      <div class="hint">Trykk <b>D</b> eller <b>Esc</b> for å lukke</div>
     </div>
 
     <!-- HJELP -->
@@ -1047,7 +1047,7 @@ ${rad("H","Denne hjelpen")}
       case "ArrowDown": addMin(-1); break;
       case "b": case "B": showBreaking(); break;
       case "c": case "C": toggleCard(); break;
-      case "d": case "D": doneDeal(); break;
+      case "d": case "D": done.classList.contains("show") ? closeDone() : doneDeal(); break;
       case "m": case "M": toggleMute(); break;
       case "t": case "T": toggleFeed(); break;
       case "h": case "H": openHelp(); break;
