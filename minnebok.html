@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minneboken: Eirin &amp; Jonas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💍</text></svg>">
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #0f1218;
+    --bg-elev: #161b25;
+    --line: rgba(217, 180, 101, 0.16);
+    --line-soft: rgba(217, 180, 101, 0.09);
+    --gold: #d9b465;
+    --gold-bright: #ecd193;
+    --rose: #e0697d;
+    --text: #f0ece1;
+    --muted: #9aa2b1;
+    --serif-display: "Didot", "Bodoni 72", "Cochin", Georgia, "Times New Roman", serif;
+    --serif-book: "Iowan Old Style", "Palatino", "Book Antiqua", Georgia, serif;
+    --sans: "Avenir Next", "Avenir", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; padding: 0 24px; }
+  .wrap-wide { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 96px 24px 72px;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(217,180,101,0.10), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 50% 110%, rgba(224,105,125,0.06), transparent 60%);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .hero-float { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+  .hero-float span {
+    position: absolute;
+    bottom: -12%;
+    font-size: 1.3rem;
+    opacity: 0;
+    animation: floatUp 14s linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0); opacity: 0; }
+    12%  { opacity: 0.16; }
+    80%  { opacity: 0.10; }
+    100% { transform: translateY(-620px); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-float { display: none; }
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 28px;
+  }
+  .monogram {
+    font-family: var(--serif-display);
+    font-size: clamp(3.4rem, 10vw, 5.6rem);
+    font-weight: 400;
+    line-height: 1.05;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .monogram .amp {
+    font-style: italic;
+    color: var(--gold-bright);
+    padding: 0 0.08em;
+  }
+  .hero-sub {
+    font-family: var(--serif-book);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--gold);
+    margin: 18px 0 0;
+  }
+  .hero-lede {
+    max-width: 470px;
+    margin: 26px auto 0;
+    color: var(--muted);
+    font-size: 0.98rem;
+    text-wrap: balance;
+  }
+  .pdf-btn {
+    display: inline-block;
+    margin-top: 34px;
+    padding: 12px 26px;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    color: var(--gold-bright);
+    text-decoration: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .pdf-btn:hover { background: var(--gold); color: var(--bg); }
+  .pdf-btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+  .pdf-hint { margin: 12px 0 0; font-size: 0.76rem; color: var(--muted); }
+
+  /* ---------- Big numbers ---------- */
+  .bignums {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--line-soft);
+    border-block: 1px solid var(--line-soft);
+    margin: 0;
+  }
+  .bignums div {
+    background: var(--bg);
+    text-align: center;
+    padding: 34px 12px 30px;
+  }
+  .bignums strong {
+    display: block;
+    font-family: var(--serif-display);
+    font-weight: 400;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--gold-bright);
+    font-variant-numeric: tabular-nums;
+  }
+  .bignums small {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 72px 0 8px; }
+  .sec-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 10px;
+  }
+  h2 {
+    font-family: var(--serif-display);
+    font-weight: 400;
+    font-size: clamp(1.7rem, 4.5vw, 2.2rem);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .sec-intro { color: var(--muted); max-width: 56ch; margin: 0 0 36px; }
+  .sec-intro em { color: var(--text); font-style: normal; }
+
+  .ornament {
+    text-align: center;
+    color: var(--gold);
+    opacity: 0.55;
+    font-size: 0.85rem;
+    letter-spacing: 0.6em;
+    padding: 56px 0 0;
+  }
+
+  /* ---------- Emoji leaderboard ---------- */
+  .emoji-board { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .emoji-board li {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr 3ch;
+    align-items: center;
+    gap: 14px;
+  }
+  .emoji-board .glyph { font-size: 1.35rem; text-align: center; }
+  .emoji-board .bar {
+    height: 12px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(217,180,101,0.85), rgba(217,180,101,0.25));
+    min-width: 6px;
+  }
+  .emoji-board li.hearts .bar {
+    background: linear-gradient(90deg, rgba(224,105,125,0.95), rgba(224,105,125,0.3));
+  }
+  .emoji-board .n {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .emoji-note { color: var(--muted); font-size: 0.88rem; margin-top: 22px; font-style: italic; font-family: var(--serif-book); }
+
+  /* ---------- Stat cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--line-soft);
+    border-radius: 6px;
+    padding: 24px 22px 22px;
+  }
+  .card .kicker {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 12px;
+  }
+  .card .num {
+    font-family: var(--serif-display);
+    font-weight: 400;
+    font-size: 2.7rem;
+    line-height: 1;
+    color: var(--gold-bright);
+    margin: 0 0 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .card .num .unit { font-size: 1.2rem; color: var(--gold); font-style: italic; }
+  .card .who {
+    font-family: var(--serif-book);
+    font-size: 1.06rem;
+    margin: 0 0 8px;
+  }
+  .card p.expl { color: var(--muted); font-size: 0.88rem; margin: 0; line-height: 1.55; }
+
+  /* ---------- Rhythm chart ---------- */
+  .rhythm {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 170px;
+    margin-top: 40px;
+  }
+  .rhythm .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; height: 100%; }
+  .rhythm .v { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); }
+  .rhythm .stick {
+    width: 100%;
+    max-width: 40px;
+    background: linear-gradient(180deg, rgba(217,180,101,0.85), rgba(217,180,101,0.25));
+    border-radius: 2px 2px 0 0;
+  }
+  .rhythm .col.peak .stick { background: linear-gradient(180deg, var(--gold-bright), rgba(217,180,101,0.4)); }
+  .rhythm-labels { display: flex; gap: 6px; margin-top: 8px; }
+  .rhythm-labels span {
+    flex: 1;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+  .rhythm-notes { margin: 26px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.88rem; }
+  .rhythm-notes li { padding: 5px 0; }
+  .rhythm-notes .t { font-family: var(--mono); color: var(--gold); font-size: 0.8rem; margin-right: 10px; }
+
+  /* ---------- Greetings ---------- */
+  .msgs { display: flex; flex-direction: column; gap: 26px; margin: 0; padding: 0; list-style: none; }
+  .msg .text {
+    font-family: var(--serif-book);
+    font-size: 1.12rem;
+    line-height: 1.5;
+    margin: 0 0 7px;
+  }
+  .msg .meta { font-size: 0.78rem; color: var(--muted); }
+  .msg .meta .name {
+    color: var(--gold);
+    font-variant-caps: small-caps;
+    letter-spacing: 0.06em;
+    font-size: 0.92rem;
+  }
+  .msg .meta .time { font-family: var(--mono); font-size: 0.72rem; opacity: 0.85; }
+  .msg .note {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    margin: 6px 0 0;
+    font-family: var(--serif-book);
+  }
+  .reply {
+    margin-top: 12px;
+    padding-left: 16px;
+    border-left: 2px solid var(--line);
+  }
+  .reply .text { font-size: 1rem; }
+
+  footer {
+    margin-top: 90px;
+    border-top: 1px solid var(--line-soft);
+    padding: 42px 24px 64px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  footer .mono { font-family: var(--mono); font-size: 0.72rem; }
+  footer .sign {
+    font-family: var(--serif-book);
+    font-style: italic;
+    color: var(--gold);
+    font-size: 0.95rem;
+    margin-top: 14px;
+  }
+  footer a { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-float" aria-hidden="true">
+    <span style="left:8%;  animation-delay:0s;   font-size:1.1rem;">❤️</span>
+    <span style="left:18%; animation-delay:5s;   font-size:1.4rem;">🥂</span>
+    <span style="left:30%; animation-delay:9s;   font-size:1rem;">💍</span>
+    <span style="left:44%; animation-delay:2.5s; font-size:1.2rem;">❤️</span>
+    <span style="left:58%; animation-delay:7s;   font-size:1rem;">🎉</span>
+    <span style="left:70%; animation-delay:11s;  font-size:1.3rem;">❤️</span>
+    <span style="left:82%; animation-delay:4s;   font-size:1.1rem;">🕺</span>
+    <span style="left:92%; animation-delay:8.5s; font-size:1.2rem;">🥂</span>
+  </div>
+  <div class="hero-inner">
+    <p class="eyebrow">Høymagasinet, Akershus festning &middot; 11. juli 2026</p>
+    <h1 class="monogram">Eirin <span class="amp">&amp;</span> Jonas</h1>
+    <p class="hero-sub">Minneboken fra skjermen</p>
+    <p class="hero-lede">
+      I fem timer hang det en QR-kode på prosjektoren, og dere fikk et kommentarfelt
+      dere måtte moderere selv. Dette er alt som kom inn, fra første hjerte til siste akevitt.
+    </p>
+    <a class="pdf-btn" href="minnebok.pdf" download="Eirin-og-Jonas-minneboken.pdf">Last ned som PDF</a>
+    <p class="pdf-hint">Liten bok i A5, 19 sider. Fin å skrive ut eller sende videre.</p>
+  </div>
+</header>
+
+<div class="bignums">
+  <div><strong>144</strong><small>hilsener</small></div>
+  <div><strong>81</strong><small>emojier</small></div>
+  <div><strong>38</strong><small>signaturer</small></div>
+  <div><strong>4:58</strong><small>timer på lufta</small></div>
+</div>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Emojitoppen</p>
+  <h2>Hjertet vant. Det var aldri spennende.</h2>
+  <p class="sec-intro">
+    Av 81 emojier var <em>39 hjerter</em>, nesten halvparten av alt som ble sendt.
+    Skålen 🥂 tok sølv med 12, og gifteringen kom seg på pallen med god margin til dansefeltet.
+  </p>
+  <ul class="emoji-board">
+    <li class="hearts"><span class="glyph">❤️</span><span class="bar" style="width:100%"></span><span class="n">39</span></li>
+    <li><span class="glyph">🥂</span><span class="bar" style="width:31%"></span><span class="n">12</span></li>
+    <li><span class="glyph">🎉</span><span class="bar" style="width:15%"></span><span class="n">6</span></li>
+    <li><span class="glyph">💍</span><span class="bar" style="width:13%"></span><span class="n">5</span></li>
+    <li><span class="glyph">🕺</span><span class="bar" style="width:13%"></span><span class="n">5</span></li>
+    <li><span class="glyph">🥳</span><span class="bar" style="width:8%"></span><span class="n">3</span></li>
+    <li><span class="glyph">😍</span><span class="bar" style="width:5%"></span><span class="n">2</span></li>
+    <li><span class="glyph">🥰</span><span class="bar" style="width:5%"></span><span class="n">2</span></li>
+    <li><span class="glyph">👍</span><span class="bar" style="width:5%"></span><span class="n">2</span></li>
+    <li><span class="glyph">💃</span><span class="bar" style="width:2.5%"></span><span class="n">1</span></li>
+    <li><span class="glyph">✨</span><span class="bar" style="width:2.5%"></span><span class="n">1</span></li>
+    <li><span class="glyph">👫</span><span class="bar" style="width:2.5%"></span><span class="n">1</span></li>
+    <li><span class="glyph">😊</span><span class="bar" style="width:2.5%"></span><span class="n">1</span></li>
+    <li><span class="glyph">🩷</span><span class="bar" style="width:2.5%"></span><span class="n">1</span></li>
+  </ul>
+  <p class="emoji-note">40 hjerter totalt, om vi teller det ene rosa. Det gjør vi.</p>
+</section>
+
+<section class="wrap-wide">
+  <p class="sec-eyebrow">Kveldens tall</p>
+  <h2>Statistikk ingen ba om, men alle fortjener</h2>
+  <p class="sec-intro">Det gjestene ikke visste, var at hvert eneste trykk ble sirlig loggført. Her er dommen.</p>
+  <div class="cards">
+    <div class="card">
+      <p class="kicker">Kveldens mest aktive</p>
+      <p class="num">16</p>
+      <p class="who">Hans Petter Arvesen</p>
+      <p class="expl">Brudgommens far sto for 16 innlegg, hvorav 7 hjerter, én drinkbestilling og ett krav om at Ole Thomas måtte holde snavla. Drillo kalte ham «vår beste mann». Tallene er enige.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Raskeste fingre</p>
+      <p class="num">7 <span class="unit">på 11 sek</span></p>
+      <p class="who">Espen</p>
+      <p class="expl">Sju emojier mellom 18:34:30 og 18:34:41. Toastmasteren tok tydeligvis en pust i bakken og brukte den godt.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Travleste minutt</p>
+      <p class="num">17:02</p>
+      <p class="who">10 hilsener på 60 sekunder</p>
+      <p class="expl">Karen-Maria &amp; Eliana åpnet ballet med åtte emojier og en gratulasjon på 17 sekunder. Rekorden sto seg hele kvelden.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Mest sendte melding</p>
+      <p class="num">3<span class="unit">x</span></p>
+      <p class="who">«Barbro er gira på shot»</p>
+      <p class="expl">Sendt anonymt tre ganger på seks minutter. Vi vet ikke om Barbro fikk shotten sin. Vi håper det.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Singelbørsen</p>
+      <p class="num">6</p>
+      <p class="who">spørsmål om noen var singel</p>
+      <p class="expl">Én avklaring kom inn: kontaktlæreren til Jonas har kjæreste. Ingen bekreftede match, men børsen var åpen til langt på kveld.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Baren</p>
+      <p class="num">5</p>
+      <p class="who">bestillinger til en kelner som ikke fantes</p>
+      <p class="expl">Vodka Bull til Berit, øl til tante Inger, fireball til Lily, Vodka Redbull til HP og en Espresso Martini til Simen. Leveringsgrad: ukjent.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Kjendisdekning</p>
+      <p class="num">5</p>
+      <p class="who">landslagsprofiler «til stede»</p>
+      <p class="expl">Haaland, Ødegaard, Solbakken, Drillo og Kevin de Bruyne fant alle veien til skjermen. Solbakken var mest engasjert med tre taktiske innspill.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Brudgommen selv</p>
+      <p class="num">2</p>
+      <p class="who">meldinger fra Jonas</p>
+      <p class="expl">Samme spørsmål begge ganger, med sju sekunders mellomrom: «Er talen om Håkon eller meg?» Vi lar den stå ubesvart her også.</p>
+    </div>
+    <div class="card">
+      <p class="kicker">Anonymitet</p>
+      <p class="num">43</p>
+      <p class="who">innlegg uten avsender</p>
+      <p class="expl">Nesten hver tredje hilsen kom uten navn. Noen signerte med punktum, én med «Anonym dame 69». Vi dømmer ingen.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Kveldens rytme</p>
+  <h2>Fra første hjerte til siste akevitt</h2>
+  <p class="sec-intro">Hilsener per halvtime, fra fotografen åpnet kl. 16:51 til Karmøy takket for seg kl. 21:49.</p>
+  <div class="rhythm" role="img" aria-label="Stolpediagram over hilsener per halvtime, med topp kl. 17:30 på 25 hilsener">
+    <div class="col"><span class="v">2</span><span class="stick" style="height:5%"></span></div>
+    <div class="col"><span class="v">17</span><span class="stick" style="height:63%"></span></div>
+    <div class="col peak"><span class="v">25</span><span class="stick" style="height:93%"></span></div>
+    <div class="col"><span class="v">7</span><span class="stick" style="height:26%"></span></div>
+    <div class="col"><span class="v">19</span><span class="stick" style="height:70%"></span></div>
+    <div class="col"><span class="v">14</span><span class="stick" style="height:52%"></span></div>
+    <div class="col"><span class="v">15</span><span class="stick" style="height:56%"></span></div>
+    <div class="col"><span class="v">7</span><span class="stick" style="height:26%"></span></div>
+    <div class="col peak"><span class="v">21</span><span class="stick" style="height:78%"></span></div>
+    <div class="col"><span class="v">6</span><span class="stick" style="height:22%"></span></div>
+    <div class="col"><span class="v">11</span><span class="stick" style="height:41%"></span></div>
+  </div>
+  <div class="rhythm-labels">
+    <span>16:30</span><span>17:00</span><span>17:30</span><span>18:00</span><span>18:30</span><span>19:00</span><span>19:30</span><span>20:00</span><span>20:30</span><span>21:00</span><span>21:30</span>
+  </div>
+  <ul class="rhythm-notes">
+    <li><span class="t">17:30</span>Kveldens topp. Alle setter seg til bords og tester QR-koden samtidig.</li>
+    <li><span class="t">18:30</span>Brudeparets taler. Hjertene hagler, Espen setter fingerrekord.</li>
+    <li><span class="t">20:30</span>Middagen er over, singelbørsen åpner og baren tar imot bestillinger.</li>
+  </ul>
+</section>
+
+<p class="ornament">✦ ✦ ✦</p>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 1</p>
+  <h2>Fra hjertet</h2>
+  <p class="sec-intro">De ekte. De som kommer til å være like fine å lese om tjue år.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Gratulerer så masse med dagen begge to! Den flyr forbi så ta vare på minner og bilder.»</p>
+      <p class="meta"><span class="name">Sander</span> &nbsp;<span class="time">17:04</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Gratulerer sååå mye dere to ❤️❤️»</p>
+      <p class="meta"><span class="name">Tante Kirsti</span> &nbsp;<span class="time">17:04</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Gratulere så masse med dagen ❤️»</p>
+      <p class="meta"><span class="name">Karen-Maria &amp; Eliana</span> &nbsp;<span class="time">17:02</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Heia brudeparet og heia Norge❤️ For en kveld dette blir! Loveu»</p>
+      <p class="meta"><span class="name">Martine</span> &nbsp;<span class="time">17:41</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«❤️👫 lenge leve kjærligheten»</p>
+      <p class="meta"><span class="name">Gina</span> &nbsp;<span class="time">17:41</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Elsker dere!!!»</p>
+      <p class="meta"><span class="name">Anonym</span> &nbsp;<span class="time">18:08</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Gratulerer så mye med dagen! ❤»</p>
+      <p class="meta"><span class="name">Verdens kuleste tante!</span> &nbsp;<span class="time">18:51</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Nydelig taler»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">19:03</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Gratulerer, hilsen yndlingstantene❤️»</p>
+      <p class="meta"><span class="name">Tante Inger og tane Merete</span> &nbsp;<span class="time">19:44</span></p>
+      <p class="note">Skrivefeilen lar vi stå. Yndlingstanter får lov til sånt.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Supert bryllup for to supre personer! Dere er best!😊👍»</p>
+      <p class="meta"><span class="name">Alf</span> &nbsp;<span class="time">20:01</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Fortsatt sjarmtroll🩷»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:58</span></p>
+      <p class="note">Kveldens eneste rosa hjerte.</p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 2</p>
+  <h2>Med glimt i øyet</h2>
+  <p class="sec-intro">Varme hilsener med en liten spiss. Sjangeren familien behersker best.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Fotografen deres var NICE as!»</p>
+      <p class="meta"><span class="name">Fotografen</span> &nbsp;<span class="time">16:51</span></p>
+      <p class="note">Kveldens aller første hilsen. Habil inhabilitet.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«GZ!! Husk at Eirin har alltid rett &lt;33»</p>
+      <p class="meta"><span class="name">Broder ærish</span> &nbsp;<span class="time">18:08</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Party on, dud 🥰»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">18:51</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Deilig med jakka av🥰»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">19:20</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Er det sånn Jonas ser ut om 20 år?»</p>
+      <p class="meta"><span class="name">Anonym dame 69</span> &nbsp;<span class="time">20:18</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Heia mammaen tilEirin»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">20:49</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Kan Eirin gå på do? Gira på å kysse Jonas»</p>
+      <p class="meta"><span class="name">Tantene</span> &nbsp;<span class="time">21:33</span></p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 3</p>
+  <h2>Fotballpanelet</h2>
+  <p class="sec-intro">Med kvartfinale på storskjerm etter festen var det kanskje ikke rart at hele fotball-Norge dukket opp i kommentarfeltet.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Gratulerer»</p>
+      <p class="meta"><span class="name">Erling Haaland</span> &nbsp;<span class="time">19:27</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Det er klart det er stort»</p>
+      <p class="meta"><span class="name">Martin Ødegaard</span> &nbsp;<span class="time">19:28</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Hans Petter er vår beste mann»</p>
+      <p class="meta"><span class="name">Drillo</span> &nbsp;<span class="time">20:22</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Gratulerer Jonas og Eirin.»</p>
+      <p class="meta"><span class="name">Erling Haaland</span> &nbsp;<span class="time">20:56</span></p>
+      <p class="note">Haaland gratulerte to ganger. Det er mer enn han gjør for de fleste.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Vi setter Jonas på topp!»</p>
+      <p class="meta"><span class="name">Ståle Solbakken</span> &nbsp;<span class="time">20:58</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Er det kevin de bruyne??»</p>
+      <p class="meta"><span class="name">Kevin de Bryne</span> &nbsp;<span class="time">21:05</span></p>
+      <p class="note">Skrev feil på sitt eget navn. Klassisk Kevin.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Jonas er inne igjen»</p>
+      <p class="meta"><span class="name">Ståle Solbakken</span> &nbsp;<span class="time">21:06</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Hvem heier på Mannheim?»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:29</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Benker Nousa, inn med Eirin»</p>
+      <p class="meta"><span class="name">Ståle Solbakken</span> &nbsp;<span class="time">21:41</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Vinner Norge VM?»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:42</span></p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 4</p>
+  <h2>Baren er åpen</h2>
+  <p class="sec-intro">På et tidspunkt bestemte salen seg for at skjermen var en bestillingsapp. Kelneren som skulle levere, fantes ikke. Det stoppet ingen.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Barbro er gira på shot»</p>
+      <p class="meta"><span class="name">Anonym</span> &nbsp;<span class="time">19:21, 19:26 og 19:26</span></p>
+      <p class="note">Sendt tre ganger. Budskapet skulle tydeligvis frem.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«1x Vodka Bull til Berit»</p>
+      <p class="meta"><span class="name">Kelner</span> &nbsp;<span class="time">19:39</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«1x øl til tante Inger»</p>
+      <p class="meta"><span class="name">Kelner</span> &nbsp;<span class="time">19:41</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«1x fireball til Lily»</p>
+      <p class="meta"><span class="name">Kelner</span> &nbsp;<span class="time">19:45</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«1x Vodka Redbull takk. Mvh HP»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">19:59</span></p>
+      <p class="note">Eneste som bestilte med hilsen og signatur. Oppdragelse.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Kan jeg få en øl?»</p>
+      <p class="meta"><span class="name">Einar</span> &nbsp;<span class="time">20:54</span></p>
+      <div class="reply">
+        <p class="text">«Nei»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:54</span></p>
+      </div>
+    </li>
+    <li class="msg">
+      <p class="text">«Simen setter også pris på en øl»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:55</span></p>
+      <div class="reply">
+        <p class="text">«Simen tåler kun en til»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:55</span></p>
+      </div>
+    </li>
+    <li class="msg">
+      <p class="text">«Davidos er sliten, PS trenger brennevin»</p>
+      <p class="meta"><span class="name">Karmøy</span> &nbsp;<span class="time">21:07</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Espresso Martini? Simen»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:27</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Hallo Einar»</p>
+      <p class="meta"><span class="name">Bartender i Mainz</span> &nbsp;<span class="time">21:36</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Heimebrent fra Einar serveres neddi gata»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:41</span></p>
+      <div class="reply">
+        <p class="text">«Er den lagd i buksa?»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:42</span></p>
+      </div>
+    </li>
+    <li class="msg">
+      <p class="text">«Davidos er sleten, PS trenger akevitt»</p>
+      <p class="meta"><span class="name">Karmøy</span> &nbsp;<span class="time">21:49</span></p>
+      <p class="note">Kveldens aller siste hilsen. Et verdig punktum.</p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 5</p>
+  <h2>Singelbørsen</h2>
+  <p class="sec-intro">Seks forespørsler, én avklaring, null bekreftede match. Markedet var likevel svært likvid.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Er det noen single gutter her egentlig?»</p>
+      <p class="meta"><span class="name">Gina Hernandez</span> &nbsp;<span class="time">19:17</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Jeg har kjæreste»</p>
+      <p class="meta"><span class="name">Kontaktlæreren til Jonas</span> &nbsp;<span class="time">20:25</span></p>
+      <p class="note">Uoppfordret, men greit å ha avklart.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Er han der singel?»</p>
+      <p class="meta"><span class="name">Jente 95</span> &nbsp;<span class="time">20:50</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«hit me up på insta om du er singel»</p>
+      <p class="meta"><span class="name">Gina</span> &nbsp;<span class="time">20:51</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Er bartenderen singel?»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:53</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Har noen nummeret til Ryerson?»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:55</span></p>
+      <div class="reply">
+        <p class="text">«Ariz lurer»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:55</span></p>
+      </div>
+    </li>
+    <li class="msg">
+      <p class="text">«Er Gina singel?»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:39 og 21:42</span></p>
+      <p class="note">Spurt to ganger. Aldri besvart. Børsen stengte i uvisshet.</p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 6</p>
+  <h2>DJ-boden</h2>
+  <p class="sec-intro">Musikkønskene kom inn via samme kanal som alt annet. Bieber-lobbyen var liten, men utholdende.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Få på noe Justin Bieber a»</p>
+      <p class="meta"><span class="name">Martine Sjøvold</span> &nbsp;<span class="time">19:45</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Bieber pls»</p>
+      <p class="meta"><span class="name">Martine Sjøvold</span> &nbsp;<span class="time">19:52</span></p>
+      <p class="note">Sju minutter senere. Fortsatt ingen Bieber.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«KYGO JO»</p>
+      <p class="meta"><span class="name">Broder ærish</span> &nbsp;<span class="time">19:58</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Danse nå»</p>
+      <p class="meta"><span class="name">.gina</span> &nbsp;<span class="time">21:34</span></p>
+    </li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <p class="sec-eyebrow">Hilsningene &middot; del 7</p>
+  <h2>Resten av kommentarfeltet</h2>
+  <p class="sec-intro">Bordhilsener, interne stikk og ting vi fortsatt ikke helt forstår. Altså selve kvelden.</p>
+  <ul class="msgs">
+    <li class="msg">
+      <p class="text">«Bord 6 🥳🥳🥳»</p>
+      <p class="meta"><span class="name">Julie Pedersen</span> &nbsp;<span class="time">17:39</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Martin hilser fra bord 3»</p>
+      <p class="meta"><span class="name">Martin</span> &nbsp;<span class="time">17:40</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«LA8PV»</p>
+      <p class="meta"><span class="name">Bord 7</span> &nbsp;<span class="time">17:41</span></p>
+      <p class="note">Et radiokallesignal. Bord 7 hilste på den eneste måten en radioamatør kan.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Noe fett?»</p>
+      <p class="meta"><span class="name">Dilling</span> &nbsp;<span class="time">18:50</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Tåler Jonas den egentlig?»</p>
+      <p class="meta"><span class="name">Anonym</span> &nbsp;<span class="time">19:18</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Jacket? Off Hotel? Trivago»</p>
+      <p class="meta"><span class="name">Mathias Abel</span> &nbsp;<span class="time">19:21</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Ole Thomas må holde snavla!»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">19:40</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«OT må kysse Elisabeth»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">19:58</span></p>
+      <p class="note">Ole Thomas fikk en aktiv kveld i kommentarfeltet.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Hvordan uttaler man Simen på engelsk?»</p>
+      <p class="meta"><span class="name">Kelner</span> &nbsp;<span class="time">19:58</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Er talen om Håkon eller meg?»</p>
+      <p class="meta"><span class="name">Jonas</span> &nbsp;<span class="time">20:24 og 20:24</span></p>
+      <p class="note">Brudgommens eneste bidrag, sendt to ganger med sju sekunders mellomrom.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Navnebror gjør det bra👍🏽»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">20:24</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Shreks skål»</p>
+      <p class="meta"><span class="name">Hans Petter Arvesen</span> &nbsp;<span class="time">20:32</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Var det 26 cm tryllestav?»</p>
+      <p class="meta"><span class="name">Anonym</span> &nbsp;<span class="time">20:54</span></p>
+      <div class="reply">
+        <p class="text">«Nei, 22 cm»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:54</span></p>
+      </div>
+      <p class="note">Sketsjen om overgangsvinduet fikk umiddelbar faktasjekk fra salen.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Eirin er digg»</p>
+      <p class="meta"><span class="name">Anonym 2</span> &nbsp;<span class="time">20:56</span></p>
+      <div class="reply">
+        <p class="text">«Ring Skaugum»</p>
+        <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:56</span></p>
+      </div>
+    </li>
+    <li class="msg">
+      <p class="text">«Go espen»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">20:57</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Ro!»</p>
+      <p class="meta"><span class="name">Martin, 16</span> &nbsp;<span class="time">20:58</span></p>
+    </li>
+    <li class="msg">
+      <p class="text">«Selger bord på kongens gate da jeg ikke har mulighet til å delta. 30 000,- kr (8 plasser) Mads, bord 4»</p>
+      <p class="meta"><span class="name">Ukjent</span> &nbsp;<span class="time">21:05</span></p>
+      <p class="note">Kveldens rubrikkannonse. Prisen var ikke til forhandling.</p>
+    </li>
+    <li class="msg">
+      <p class="text">«Hola»</p>
+      <p class="meta"><span class="name">.gina</span> &nbsp;<span class="time">21:34</span></p>
+    </li>
+  </ul>
+</section>
+
+<footer>
+  <p>Samlet inn via QR-koden på prosjektoren i Høymagasinet, 11. juli 2026.</p>
+  <p class="mono">Første hilsen 16:51:15 &middot; siste 21:49:33 &middot; 144 totalt &middot; ingen ble moderert</p>
+  <p><a href="minnebok.pdf" download="Eirin-og-Jonas-minneboken.pdf">Last ned minneboken som PDF</a></p>
+  <p class="sign">Til Eirin &amp; Jonas, fra kommentarfeltet deres</p>
+</footer>
+
+</body>
+</html>
