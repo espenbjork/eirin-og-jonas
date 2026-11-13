@@ -596,7 +596,8 @@
      URL-en skal være identisk med SCRIPT_URL i bryllupsbackdrop/config.js.
      Kun meldinger som kommer inn ETTER at sendingen er i gang vises.
      Test uten backend: åpne siden med ?demo=1 */
-  const FEED_URL = "https://script.google.com/macros/s/AKfycbyDo4xdYQm8JJAzTieFWE95Q5bMu0XF3DUJcO1WxAmWbesVbx4iRhLgtAQoOhInDmsZrA/exec";
+  // Gjestefeeden ble skrudd av 13.11.2026. Tom adresse betyr ingen henting.
+  const FEED_URL = "";
   const FEED_POLL_MS = 3000;      // hvor ofte vi ser etter nye meldinger
   const FEED_MIN_GAP_MS = 2600;   // minste tid mellom hvert kort på skjermen
   const FEED_MAX_CARDS = 3;       // maks synlige kort i feeden

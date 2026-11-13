@@ -4,7 +4,8 @@
 // Lim inn URL-en du får når du deployer Apps Script som web-app
 // (se README.md, steg 1). Den ser slik ut:
 // https://script.google.com/macros/s/XXXXX/exec
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDo4xdYQm8JJAzTieFWE95Q5bMu0XF3DUJcO1WxAmWbesVbx4iRhLgtAQoOhInDmsZrA/exec";
+// Apps Script-utrullingen ble arkivert 13.11.2026, og innsendingen er stengt.
+const SCRIPT_URL = "";
 
 const CONFIG = {
   brud: "Eirin",
